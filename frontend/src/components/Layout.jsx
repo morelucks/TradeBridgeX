@@ -52,12 +52,7 @@ const Layout = ({ children }) => {
                 >
                   Markets
                 </Link>
-                <Link
-                  to="/login"
-                  className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
-                >
-                  Login
-                </Link>
+                
               </nav>
 
               {/* Mobile Menu Button */}
