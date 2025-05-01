@@ -1,38 +1,48 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { FiSearch, FiShoppingCart, FiDollarSign, FiPackage, FiShield, FiClock, FiCheckCircle } from 'react-icons/fi';
-import { BsArrowUpRight, BsGraphUp } from 'react-icons/bs';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { formatEther } from "viem";
+import {
+  FiSearch,
+  FiShoppingCart,
+  FiDollarSign,
+  FiPackage,
+  FiShield,
+  FiClock,
+  FiCheckCircle,
+} from "react-icons/fi";
+import { BsArrowUpRight, BsGraphUp } from "react-icons/bs";
+import { useAccount } from "wagmi";
+import { useAllCommodities } from "../../hooks/useGetAllCommodities";
+import { useCommoditiesByUser } from "../../hooks/getCommoditiesByUser";
 
 const BuyerDashboard = () => {
+  const { address } = useAccount();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('marketplace');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState("marketplace");
+  const [searchQuery, setSearchQuery] = useState("");
 
-  // Sample data - replace with real data from your API
-  const commodities = [
-    { id: 1, name: 'Premium Wheat', seller: 'FarmCo', price: 645.75, location: 'Kansas, USA', rating: 4.8, deliveryTime: '3-5 days', quantity: 5000 },
-    { id: 2, name: 'Arabica Coffee', seller: 'BeanGrowers', price: 1.85, location: 'Colombia', rating: 4.6, deliveryTime: '7-10 days', quantity: 2000 },
-    { id: 3, name: 'Crude Oil', seller: 'PetroGlobal', price: 78.35, location: 'Texas, USA', rating: 4.9, deliveryTime: '10-14 days', quantity: 10000 },
-    { id: 4, name: 'Copper Ore', seller: 'MetalMine', price: 3.82, location: 'Chile', rating: 4.5, deliveryTime: '14-21 days', quantity: 8000 },
-  ];
+  const { commodities } = useAllCommodities();
+  const { purchases } = useCommoditiesByUser(address);
 
-  const purchases = [
-    { id: 101, commodity: 'Premium Wheat', seller: 'FarmCo', price: 645.75, status: 'Delivered', date: '2023-05-15' },
-    { id: 102, commodity: 'Arabica Coffee', seller: 'BeanGrowers', price: 1.85, status: 'In Transit', date: '2023-06-02' },
-    { id: 103, commodity: 'Copper Ore', seller: 'MetalMine', price: 3.82, status: 'Processing', date: '2023-06-10' },
-  ];
+  console.log(commodities);
+  console.log(purchases);
 
   const disputes = [
-    { id: 201, commodity: 'Soybeans', seller: 'AgriCorp', status: 'Under Review', date: '2023-04-20' },
+    {
+      id: 201,
+      commodity: "Soybeans",
+      seller: "AgriCorp",
+      status: "Under Review",
+      date: "2023-04-20",
+    },
   ];
 
   const handlePurchase = (commodityId) => {
     navigate(`/buyer-dashboard/purchase-commodity/${commodityId}`);
   };
 
-  const filteredCommodities = commodities.filter(commodity =>
-    commodity.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    commodity.seller.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredCommodities = commodities.filter((commodity) =>
+    commodity.commodityTitle.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -41,7 +51,9 @@ const BuyerDashboard = () => {
       <div className="bg-white shadow-sm">
         <div className="container mx-auto px-4 py-4">
           <h1 className="text-2xl font-bold text-gray-800">Buyer Dashboard</h1>
-          <p className="text-gray-600">Welcome back! Explore commodities and manage your purchases</p>
+          <p className="text-gray-600">
+            Welcome back! Explore commodities and manage your purchases
+          </p>
         </div>
       </div>
 
@@ -50,27 +62,39 @@ const BuyerDashboard = () => {
         {/* Navigation Tabs */}
         <div className="flex overflow-x-auto mb-6">
           <button
-            onClick={() => setActiveTab('marketplace')}
-            className={`px-6 py-3 font-medium whitespace-nowrap ${activeTab === 'marketplace' ? 'text-emerald-600 border-b-2 border-emerald-600' : 'text-gray-500'}`}
+            onClick={() => setActiveTab("marketplace")}
+            className={`px-6 py-3 font-medium whitespace-nowrap ${
+              activeTab === "marketplace"
+                ? "text-emerald-600 border-b-2 border-emerald-600"
+                : "text-gray-500"
+            }`}
           >
             Marketplace
           </button>
           <button
-            onClick={() => setActiveTab('purchases')}
-            className={`px-6 py-3 font-medium whitespace-nowrap ${activeTab === 'purchases' ? 'text-emerald-600 border-b-2 border-emerald-600' : 'text-gray-500'}`}
+            onClick={() => setActiveTab("purchases")}
+            className={`px-6 py-3 font-medium whitespace-nowrap ${
+              activeTab === "purchases"
+                ? "text-emerald-600 border-b-2 border-emerald-600"
+                : "text-gray-500"
+            }`}
           >
             My Purchases
           </button>
           <button
-            onClick={() => setActiveTab('disputes')}
-            className={`px-6 py-3 font-medium whitespace-nowrap ${activeTab === 'disputes' ? 'text-emerald-600 border-b-2 border-emerald-600' : 'text-gray-500'}`}
+            onClick={() => setActiveTab("disputes")}
+            className={`px-6 py-3 font-medium whitespace-nowrap ${
+              activeTab === "disputes"
+                ? "text-emerald-600 border-b-2 border-emerald-600"
+                : "text-gray-500"
+            }`}
           >
             Disputes
           </button>
         </div>
 
         {/* Marketplace Tab */}
-        {activeTab === 'marketplace' && (
+        {activeTab === "marketplace" && (
           <div>
             <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
               <div className="relative">
@@ -87,25 +111,38 @@ const BuyerDashboard = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredCommodities.map((commodity) => (
-                <div key={commodity.id} className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+                <div
+                  key={commodity.id}
+                  className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow"
+                >
                   <div className="p-4">
                     <div className="flex justify-between items-start mb-2">
-                      <h3 className="text-lg font-bold text-gray-800">{commodity.name}</h3>
+                      <h3 className="text-lg font-bold text-gray-800">
+                        {commodity.commodityTitle}
+                      </h3>
                       <span className="bg-emerald-100 text-emerald-800 text-xs px-2 py-1 rounded-full">
                         {commodity.rating} ★
                       </span>
                     </div>
-                    <p className="text-gray-600 mb-1">Seller: {commodity.seller}</p>
-                    <p className="text-gray-600 mb-3">Location: {commodity.location}</p>
-                    
+                    {/* <p className="text-gray-600 mb-1">
+                      Seller: {commodity.seller}
+                    </p> */}
+                    <p className="text-gray-600 mb-3">
+                      Location: {commodity.commodityLocation}
+                    </p>
+
                     <div className="flex justify-between items-center mb-4">
                       <div>
                         <p className="text-sm text-gray-500">Price per unit</p>
-                        <p className="text-xl font-bold text-emerald-600">${commodity.price.toFixed(2)}</p>
+                        <p className="text-xl font-bold text-emerald-600">
+                          ${formatEther(commodity.pricePerQuantity)}
+                        </p>
                       </div>
                       <div>
                         <p className="text-sm text-gray-500">Available</p>
-                        <p className="text-lg font-medium">{commodity.quantity.toLocaleString()} units</p>
+                        <p className="text-lg font-medium">
+                          {commodity.commodityQuantity.toLocaleString()} units
+                        </p>
                       </div>
                     </div>
 
@@ -133,39 +170,63 @@ const BuyerDashboard = () => {
         )}
 
         {/* Purchases Tab */}
-        {activeTab === 'purchases' && (
+        {activeTab === "purchases" && (
           <div className="bg-white rounded-lg shadow-sm overflow-hidden">
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Commodity</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Seller</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Commodity
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Seller
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Price
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Date
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {purchases.map((purchase) => (
                   <tr key={purchase.id}>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="font-medium text-gray-900">{purchase.commodity}</div>
+                      <div className="font-medium text-gray-900">
+                        {purchase.commodity}
+                      </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-gray-500">{purchase.seller}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-gray-500">${purchase.price.toFixed(2)}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-gray-500">{purchase.date}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-gray-500">
+                      {purchase.seller}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-gray-500">
+                      ${purchase.price.toFixed(2)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-gray-500">
+                      {purchase.date}
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 py-1 text-xs rounded-full ${
-                        purchase.status === 'Delivered' ? 'bg-green-100 text-green-800' :
-                        purchase.status === 'In Transit' ? 'bg-blue-100 text-blue-800' :
-                        'bg-yellow-100 text-yellow-800'
-                      }`}>
+                      <span
+                        className={`px-2 py-1 text-xs rounded-full ${
+                          purchase.status === "Delivered"
+                            ? "bg-green-100 text-green-800"
+                            : purchase.status === "In Transit"
+                            ? "bg-blue-100 text-blue-800"
+                            : "bg-yellow-100 text-yellow-800"
+                        }`}
+                      >
                         {purchase.status}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <Link 
+                      <Link
                         to={`/buyer-dashboard/view-purchase/${purchase.id}`}
                         className="text-emerald-600 hover:text-emerald-800"
                       >
@@ -180,34 +241,50 @@ const BuyerDashboard = () => {
         )}
 
         {/* Disputes Tab */}
-        {activeTab === 'disputes' && (
+        {activeTab === "disputes" && (
           <div className="bg-white rounded-lg shadow-sm overflow-hidden">
             {disputes.length > 0 ? (
               <table className="w-full">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Commodity</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Seller</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Commodity
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Seller
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Date
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
                   {disputes.map((dispute) => (
                     <tr key={dispute.id}>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="font-medium text-gray-900">{dispute.commodity}</div>
+                        <div className="font-medium text-gray-900">
+                          {dispute.commodity}
+                        </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-gray-500">{dispute.seller}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-gray-500">{dispute.date}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-gray-500">
+                        {dispute.seller}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-gray-500">
+                        {dispute.date}
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full">
                           {dispute.status}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <Link 
+                        <Link
                           to={`/buyer-dashboard/dispute-sale/${dispute.id}`}
                           className="text-emerald-600 hover:text-emerald-800"
                         >
@@ -221,8 +298,12 @@ const BuyerDashboard = () => {
             ) : (
               <div className="p-8 text-center">
                 <FiCheckCircle className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-2 text-lg font-medium text-gray-900">No active disputes</h3>
-                <p className="mt-1 text-gray-500">All your purchases have been successfully processed.</p>
+                <h3 className="mt-2 text-lg font-medium text-gray-900">
+                  No active disputes
+                </h3>
+                <p className="mt-1 text-gray-500">
+                  All your purchases have been successfully processed.
+                </p>
               </div>
             )}
           </div>
@@ -247,7 +328,9 @@ const BuyerDashboard = () => {
                 <FiPackage className="h-6 w-6" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Active Purchases</p>
+                <p className="text-sm font-medium text-gray-500">
+                  Active Purchases
+                </p>
                 <p className="text-2xl font-bold">3</p>
               </div>
             </div>
@@ -258,7 +341,9 @@ const BuyerDashboard = () => {
                 <FiShield className="h-6 w-6" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Open Disputes</p>
+                <p className="text-sm font-medium text-gray-500">
+                  Open Disputes
+                </p>
                 <p className="text-2xl font-bold">{disputes.length}</p>
               </div>
             </div>

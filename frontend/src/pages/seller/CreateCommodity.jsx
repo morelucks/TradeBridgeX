@@ -1,50 +1,74 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiUpload, FiImage, FiDollarSign, FiPackage, FiCheck } from 'react-icons/fi';
+import { FiUpload, FiImage, FiDollarSign, FiPackage, FiCheck, FiMapPin } from 'react-icons/fi';
+import { useAddCommodity } from '../../hooks/useAddCommodity';
+
 
 const CreateCommodity = () => {
   const navigate = useNavigate();
+  const { addCommodity, isPending, isSuccess, error } = useAddCommodity();
+
   const [formData, setFormData] = useState({
     name: '',
     category: 'agriculture',
     price: '',
     quantity: '',
     description: '',
-    image: null,
+    imageURL: '',
     certification: '',
-    deliveryOptions: []
+    deliveryOptions: [],
+    quantityMeasurement: 'unit',
+    location: '',
   });
 
   const categories = [
     { value: 'agriculture', label: 'Agricultural' },
     { value: 'minerals', label: 'Minerals' },
     { value: 'energy', label: 'Energy' },
-    { value: 'metals', label: 'Metals' }
+    { value: 'metals', label: 'Metals' },
   ];
+
+  useEffect(() => {
+    if (isSuccess) {
+      navigate('/seller-dashboard/my-commodities');
+    }
+  }, [isSuccess, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleFileChange = (e) => {
-    setFormData(prev => ({ ...prev, image: e.target.files[0] }));
-  };
-
   const handleDeliveryOption = (option) => {
-    setFormData(prev => {
-      const options = prev.deliveryOptions.includes(option)
+    setFormData(prev => ({
+      ...prev,
+      deliveryOptions: prev.deliveryOptions.includes(option)
         ? prev.deliveryOptions.filter(o => o !== option)
-        : [...prev.deliveryOptions, option];
-      return { ...prev, deliveryOptions: options };
-    });
+        : [...prev.deliveryOptions, option]
+    }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Here you would typically send the data to your backend
-    console.log('Commodity submitted:', formData);
-    navigate('/seller-dashboard/my-commodities');
+    
+    // Validate numeric fields
+    if (isNaN(Number(formData.price)) || isNaN(Number(formData.quantity))) {
+      alert('Please enter valid numbers for price and quantity');
+      return;
+    }
+
+    const fullDescription = `${formData.description}\nCategory: ${formData.category}\nCertification: ${formData.certification}\nDelivery Options: ${formData.deliveryOptions.join(', ')}`;
+
+    addCommodity(
+      formData.name,
+      fullDescription,
+      formData.quantity,
+      formData.quantityMeasurement,
+      formData.price,
+      '', 
+      formData.imageURL || 'https://example.com/placeholder.jpg',
+      formData.location || 'Unknown'
+    );
   };
 
   return (
@@ -53,11 +77,14 @@ const CreateCommodity = () => {
         <FiPackage className="mr-2 text-emerald-600" />
         Add New Commodity
       </h1>
-      
+
       <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          {/* Name */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Commodity Name</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Commodity Name*
+            </label>
             <input
               type="text"
               name="name"
@@ -67,102 +94,167 @@ const CreateCommodity = () => {
               required
             />
           </div>
-          
+
+          {/* Category */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Category*
+            </label>
             <select
               name="category"
               value={formData.category}
               onChange={handleChange}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500"
+              required
             >
               {categories.map(cat => (
-                <option key={cat.value} value={cat.value}>{cat.label}</option>
+                <option key={cat.value} value={cat.value}>
+                  {cat.label}
+                </option>
               ))}
             </select>
           </div>
-          
+
+          {/* Price */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Price per Unit ($)</label>
-            <input
-              type="number"
-              name="price"
-              value={formData.price}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500"
-              required
-            />
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Price per Unit ($)*
+            </label>
+            <div className="relative">
+              <FiDollarSign className="absolute left-3 top-3 text-gray-400" />
+              <input
+                type="number"
+                name="price"
+                value={formData.price}
+                onChange={handleChange}
+                min="0"
+                step="0.01"
+                className="w-full pl-8 px-4 py-2 border border-gray-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500"
+                required
+              />
+            </div>
           </div>
-          
+
+          {/* Quantity */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Available Quantity</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Available Quantity*
+            </label>
             <input
               type="number"
               name="quantity"
               value={formData.quantity}
               onChange={handleChange}
+              min="1"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500"
               required
             />
           </div>
+
+          {/* Measurement */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Quantity Measurement*
+            </label>
+            <input
+              type="text"
+              name="quantityMeasurement"
+              value={formData.quantityMeasurement}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500"
+              placeholder="e.g., kg, liters"
+              required
+            />
+          </div>
+
+          {/* Location */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Location*
+            </label>
+            <div className="relative">
+              <FiMapPin className="absolute left-3 top-3 text-gray-400" />
+              <input
+                type="text"
+                name="location"
+                value={formData.location}
+                onChange={handleChange}
+                className="w-full pl-8 px-4 py-2 border border-gray-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500"
+                placeholder="e.g., New York, USA"
+                required
+              />
+            </div>
+          </div>
         </div>
-        
+
+        {/* Description */}
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Description*
+          </label>
           <textarea
             name="description"
             value={formData.description}
             onChange={handleChange}
             rows={4}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500"
+            required
           />
         </div>
-        
+
+        {/* Image URL */}
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Commodity Image</label>
-          <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
-            <div className="space-y-1 text-center">
-              <FiImage className="mx-auto h-12 w-12 text-gray-400" />
-              <div className="flex text-sm text-gray-600">
-                <label className="relative cursor-pointer bg-white rounded-md font-medium text-emerald-600 hover:text-emerald-500 focus-within:outline-none">
-                  <span>Upload an image</span>
-                  <input 
-                    type="file" 
-                    className="sr-only" 
-                    onChange={handleFileChange}
-                    accept="image/*"
-                  />
-                </label>
-                <p className="pl-1">or drag and drop</p>
-              </div>
-              <p className="text-xs text-gray-500">
-                PNG, JPG up to 5MB
-              </p>
-            </div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Commodity Image URL
+          </label>
+          <div className="flex items-center px-4 py-2 border border-gray-300 rounded-lg">
+            <FiImage className="mr-2 text-gray-400" />
+            <input
+              type="url"
+              name="imageURL"
+              value={formData.imageURL}
+              onChange={handleChange}
+              placeholder="https://example.com/image.jpg"
+              className="w-full focus:outline-none"
+              pattern="https?://.+"
+            />
           </div>
+          <p className="text-xs text-gray-500 mt-1">
+            Provide a URL to the commodity image (e.g., from IPFS or a hosting service)
+          </p>
         </div>
-        
+
+        {/* Certification */}
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Certification</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Certification
+          </label>
           <input
             type="text"
             name="certification"
             value={formData.certification}
             onChange={handleChange}
-            placeholder="e.g. Organic, Fair Trade, etc."
+            placeholder="e.g., Organic, Fair Trade"
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500"
           />
         </div>
-        
+
+        {/* Delivery Options */}
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Delivery Options</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Delivery Options
+          </label>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
             {['Standard Shipping', 'Express Delivery', 'Local Pickup'].map(option => (
               <button
                 key={option}
                 type="button"
                 onClick={() => handleDeliveryOption(option)}
-                className={`flex items-center justify-center p-3 border rounded-lg ${formData.deliveryOptions.includes(option) ? 'border-emerald-500 bg-emerald-50 text-emerald-600' : 'border-gray-300 hover:bg-gray-50'}`}
+                className={`flex items-center justify-center p-3 border rounded-lg ${
+                  formData.deliveryOptions.includes(option)
+                    ? 'border-emerald-500 bg-emerald-50 text-emerald-600'
+                    : 'border-gray-300 hover:bg-gray-50'
+                }`}
               >
                 {formData.deliveryOptions.includes(option) && (
                   <FiCheck className="mr-2 text-emerald-500" />
@@ -172,7 +264,8 @@ const CreateCommodity = () => {
             ))}
           </div>
         </div>
-        
+
+        {/* Buttons */}
         <div className="flex justify-end space-x-3">
           <button
             type="button"
@@ -183,12 +276,20 @@ const CreateCommodity = () => {
           </button>
           <button
             type="submit"
-            className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 flex items-center"
+            disabled={isPending}
+            className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 flex items-center disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
             <FiUpload className="mr-2" />
-            List Commodity
+            {isPending ? 'Listing...' : 'List Commodity'}
           </button>
         </div>
+
+        {/* Status Messages */}
+        {error && (
+          <div className="mt-4 p-3 bg-red-50 text-red-600 rounded-lg">
+            Error: {error.message || 'Failed to list commodity'}
+          </div>
+        )}
       </form>
     </div>
   );

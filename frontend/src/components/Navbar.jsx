@@ -38,7 +38,7 @@ const Navbar = ({ onOpenAuth }) => {
               About
               <span className="absolute left-0 bottom-0 w-0 h-0.5 bg-amber-500 transition-all duration-300 group-hover:w-full"></span>
             </Link>
-            <Link to="/markets" className="relative group text-gray-700 hover:text-amber-500 font-medium transition-colors">
+            <Link to="/buyer-dashboard" className="relative group text-gray-700 hover:text-amber-500 font-medium transition-colors">
               Markets
               <span className="absolute left-0 bottom-0 w-0 h-0.5 bg-amber-500 transition-all duration-300 group-hover:w-full"></span>
             </Link>
