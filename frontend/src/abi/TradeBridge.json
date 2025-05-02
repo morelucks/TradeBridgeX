@@ -1,5 +1,15 @@
 [
-  { "inputs": [], "stateMutability": "nonpayable", "type": "constructor" },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_tokenAddress",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
   {
     "anonymous": false,
     "inputs": [
@@ -158,14 +168,22 @@
     "inputs": [],
     "name": "ITBTK",
     "outputs": [
-      { "internalType": "contract IERC20", "name": "", "type": "address" }
+      {
+        "internalType": "contract IERC20",
+        "name": "",
+        "type": "address"
+      }
     ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "string", "name": "_commodityTitle", "type": "string" },
+      {
+        "internalType": "string",
+        "name": "_commodityTitle",
+        "type": "string"
+      },
       {
         "internalType": "string",
         "name": "_commodityDescription",
@@ -186,8 +204,16 @@
         "name": "_pricePerQuantity",
         "type": "uint256"
       },
-      { "internalType": "string", "name": "_image", "type": "string" },
-      { "internalType": "string", "name": "_imageURL", "type": "string" },
+      {
+        "internalType": "string",
+        "name": "_image",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_imageURL",
+        "type": "string"
+      },
       {
         "internalType": "string",
         "name": "_commodityLocation",
@@ -200,12 +226,30 @@
     "type": "function"
   },
   {
-    "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "name": "allCommodities",
     "outputs": [
-      { "internalType": "uint256", "name": "commodityId", "type": "uint256" },
-      { "internalType": "address", "name": "sellerAddress", "type": "address" },
-      { "internalType": "string", "name": "commodityTitle", "type": "string" },
+      {
+        "internalType": "uint256",
+        "name": "commodityId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "sellerAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "commodityTitle",
+        "type": "string"
+      },
       {
         "internalType": "string",
         "name": "commodityDescription",
@@ -226,24 +270,52 @@
         "name": "pricePerQuantity",
         "type": "uint256"
       },
-      { "internalType": "string", "name": "image", "type": "string" },
-      { "internalType": "string", "name": "imageURL", "type": "string" },
+      {
+        "internalType": "string",
+        "name": "image",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "imageURL",
+        "type": "string"
+      },
       {
         "internalType": "string",
         "name": "commodityLocation",
         "type": "string"
       },
-      { "internalType": "bool", "name": "isAvailable", "type": "bool" },
-      { "internalType": "bool", "name": "hasReceived", "type": "bool" },
-      { "internalType": "uint256", "name": "createdAt", "type": "uint256" }
+      {
+        "internalType": "bool",
+        "name": "isAvailable",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "hasReceived",
+        "type": "bool"
+      },
+      {
+        "internalType": "uint256",
+        "name": "createdAt",
+        "type": "uint256"
+      }
     ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "uint256", "name": "_commodityId", "type": "uint256" },
-      { "internalType": "uint256", "name": "_quantity", "type": "uint256" }
+      {
+        "internalType": "uint256",
+        "name": "_commodityId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_quantity",
+        "type": "uint256"
+      }
     ],
     "name": "buyCommodity",
     "outputs": [],
@@ -252,9 +324,21 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "_defaulter", "type": "address" },
-      { "internalType": "uint256", "name": "_commodityId", "type": "uint256" },
-      { "internalType": "string", "name": "_report", "type": "string" }
+      {
+        "internalType": "address",
+        "name": "_defaulter",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_commodityId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "_report",
+        "type": "string"
+      }
     ],
     "name": "buyerRaiseDispute",
     "outputs": [],
@@ -262,13 +346,35 @@
     "type": "function"
   },
   {
-    "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "name": "disputes",
     "outputs": [
-      { "internalType": "address", "name": "buyer", "type": "address" },
-      { "internalType": "address", "name": "seller", "type": "address" },
-      { "internalType": "string", "name": "report", "type": "string" },
-      { "internalType": "bool", "name": "isResolved", "type": "bool" }
+      {
+        "internalType": "address",
+        "name": "buyer",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "seller",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "report",
+        "type": "string"
+      },
+      {
+        "internalType": "bool",
+        "name": "isResolved",
+        "type": "bool"
+      }
     ],
     "stateMutability": "view",
     "type": "function"
@@ -314,16 +420,36 @@
             "name": "pricePerQuantity",
             "type": "uint256"
           },
-          { "internalType": "string", "name": "image", "type": "string" },
-          { "internalType": "string", "name": "imageURL", "type": "string" },
+          {
+            "internalType": "string",
+            "name": "image",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "imageURL",
+            "type": "string"
+          },
           {
             "internalType": "string",
             "name": "commodityLocation",
             "type": "string"
           },
-          { "internalType": "bool", "name": "isAvailable", "type": "bool" },
-          { "internalType": "bool", "name": "hasReceived", "type": "bool" },
-          { "internalType": "uint256", "name": "createdAt", "type": "uint256" }
+          {
+            "internalType": "bool",
+            "name": "isAvailable",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "hasReceived",
+            "type": "bool"
+          },
+          {
+            "internalType": "uint256",
+            "name": "createdAt",
+            "type": "uint256"
+          }
         ],
         "internalType": "struct TradeBridge.Commodity[]",
         "name": "",
@@ -335,7 +461,11 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "user", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
     ],
     "name": "getCommoditiesByUser",
     "outputs": [
@@ -376,16 +506,36 @@
             "name": "pricePerQuantity",
             "type": "uint256"
           },
-          { "internalType": "string", "name": "image", "type": "string" },
-          { "internalType": "string", "name": "imageURL", "type": "string" },
+          {
+            "internalType": "string",
+            "name": "image",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "imageURL",
+            "type": "string"
+          },
           {
             "internalType": "string",
             "name": "commodityLocation",
             "type": "string"
           },
-          { "internalType": "bool", "name": "isAvailable", "type": "bool" },
-          { "internalType": "bool", "name": "hasReceived", "type": "bool" },
-          { "internalType": "uint256", "name": "createdAt", "type": "uint256" }
+          {
+            "internalType": "bool",
+            "name": "isAvailable",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "hasReceived",
+            "type": "bool"
+          },
+          {
+            "internalType": "uint256",
+            "name": "createdAt",
+            "type": "uint256"
+          }
         ],
         "internalType": "struct TradeBridge.Commodity[]",
         "name": "",
@@ -398,20 +548,36 @@
   {
     "inputs": [],
     "name": "nextCommodityId",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "owner",
-    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "uint256", "name": "_commodityId", "type": "uint256" }
+      {
+        "internalType": "uint256",
+        "name": "_commodityId",
+        "type": "uint256"
+      }
     ],
     "name": "resolveDispute",
     "outputs": [],
@@ -419,20 +585,46 @@
     "type": "function"
   },
   {
-    "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "name": "sales",
     "outputs": [
-      { "internalType": "address", "name": "buyer", "type": "address" },
-      { "internalType": "address", "name": "seller", "type": "address" },
-      { "internalType": "uint256", "name": "commodityId", "type": "uint256" },
-      { "internalType": "uint256", "name": "quantity", "type": "uint256" }
+      {
+        "internalType": "address",
+        "name": "buyer",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "seller",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "commodityId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "quantity",
+        "type": "uint256"
+      }
     ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "uint256", "name": "_fee", "type": "uint256" }
+      {
+        "internalType": "uint256",
+        "name": "_fee",
+        "type": "uint256"
+      }
     ],
     "name": "setTransactionFee",
     "outputs": [],
@@ -441,35 +633,88 @@
   },
   {
     "inputs": [],
+    "name": "tokenAddress",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "transactionCount",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "transactionFee",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "", "type": "address" },
-      { "internalType": "uint256", "name": "", "type": "uint256" }
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
     ],
     "name": "userCommodities",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "", "type": "address" },
-      { "internalType": "uint256", "name": "", "type": "uint256" }
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
     ],
     "name": "userCommoditiesInvolved",
-    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   }

@@ -16,7 +16,7 @@ contract TradeBridge {
     uint public transactionCount;
     uint public nextCommodityId;
     address public owner;
-
+    address  public tokenAddress;
     struct Commodity {
         uint commodityId;
         address sellerAddress;
@@ -52,6 +52,7 @@ contract TradeBridge {
 
     IERC20 public ITBTK;
 
+
     mapping(address => uint[]) public userCommodities;
     mapping(address => mapping(uint => bool)) public userCommoditiesInvolved;
     mapping(uint => Dispute) public disputes;
@@ -62,7 +63,8 @@ contract TradeBridge {
     event DisputeRaised(address indexed defaulter, address indexed reporter, uint commodityId, string report);
     event DisputeResolved(address indexed defaulter, address indexed reporter, uint commodityId);
 
-    constructor() {
+    constructor(address _tokenAddress) {
+        tokenAddress = _tokenAddress;
         owner = msg.sender;
         nextCommodityId = 1;
     }
@@ -123,36 +125,66 @@ contract TradeBridge {
         return userCommoditiesArray;
     }
 
+    // function buyCommodity(uint _commodityId, uint _quantity) external {
+    //     require(_commodityId > 0 && _commodityId < nextCommodityId, "Error: Commodity does not exist");
+    //     Commodity storage commodity = allCommodities[_commodityId - 1];
+    //     require(commodity.commodityQuantity >= _quantity, "Error: Commodity quantity is lower than your quantity");
+    //     require(_quantity > 0, "Error: Quantity cannot be zero");
+
+    //     uint totalAmount = (commodity.pricePerQuantity * _quantity) + transactionFee;
+    //     require(ITBTK(tokenAddress).balanceOf(msg.sender) >= totalAmount, "Error: Insufficient balance");
+
+    //     require(ITBTK(tokenAddress).transferFrom(msg.sender, commodity.sellerAddress, totalAmount), "Error: Transfer failed");
+
+    //     // IERC1155(commodity.nftContract).safeTransferFrom(commodity.nftContract, msg.sender, _commodityId, _quantity, "");
+
+    //     commodity.commodityQuantity -= _quantity;
+
+    //     sales.push(Sale({
+    //         buyer: msg.sender,
+    //         seller: commodity.sellerAddress,
+    //         commodityId: _commodityId,
+    //         quantity: _quantity
+    //     }));
+
+    //     userCommoditiesInvolved[msg.sender][_commodityId] = true;
+
+    //     if (commodity.commodityQuantity == 0) {
+    //         commodity.isAvailable = false;
+    //     }
+
+    //     emit CommodityPurchased(msg.sender, _commodityId, _quantity, totalAmount);
+    // }
+
     function buyCommodity(uint _commodityId, uint _quantity) external {
-        require(_commodityId > 0 && _commodityId < nextCommodityId, "Error: Commodity does not exist");
-        Commodity storage commodity = allCommodities[_commodityId - 1];
-        require(commodity.commodityQuantity >= _quantity, "Error: Commodity quantity is lower than your quantity");
-        require(_quantity > 0, "Error: Quantity cannot be zero");
+    require(_commodityId > 0 && _commodityId < nextCommodityId, "Error: Commodity does not exist");
+    Commodity storage commodity = allCommodities[_commodityId - 1];
+    require(commodity.commodityQuantity >= _quantity, "Error: Commodity quantity is lower than your quantity");
+    require(_quantity > 0, "Error: Quantity cannot be zero");
 
-        uint totalAmount = (commodity.pricePerQuantity * _quantity) + transactionFee;
-        require(ITBTK.balanceOf(msg.sender) >= totalAmount, "Error: Insufficient balance");
+    uint totalAmount = (commodity.pricePerQuantity * _quantity) + transactionFee;
+    require(IERC20(tokenAddress).balanceOf(msg.sender) >= totalAmount, "Error: Insufficient balance");
 
-        require(ITBTK.transferFrom(msg.sender, commodity.sellerAddress, totalAmount), "Error: Transfer failed");
+    require(IERC20(tokenAddress).transferFrom(msg.sender, commodity.sellerAddress, totalAmount), "Error: Transfer failed");
 
-        // IERC1155(commodity.nftContract).safeTransferFrom(commodity.nftContract, msg.sender, _commodityId, _quantity, "");
+    commodity.commodityQuantity -= _quantity;
 
-        commodity.commodityQuantity -= _quantity;
+    sales.push(Sale({
+        buyer: msg.sender,
+        seller: commodity.sellerAddress,
+        commodityId: _commodityId,
+        quantity: _quantity
+    }));
 
-        sales.push(Sale({
-            buyer: msg.sender,
-            seller: commodity.sellerAddress,
-            commodityId: _commodityId,
-            quantity: _quantity
-        }));
+    userCommoditiesInvolved[msg.sender][_commodityId] = true;
 
-        userCommoditiesInvolved[msg.sender][_commodityId] = true;
-
-        if (commodity.commodityQuantity == 0) {
-            commodity.isAvailable = false;
-        }
-
-        emit CommodityPurchased(msg.sender, _commodityId, _quantity, totalAmount);
+    if (commodity.commodityQuantity == 0) {
+        commodity.isAvailable = false;
     }
+
+    emit CommodityPurchased(msg.sender, _commodityId, _quantity, totalAmount);
+}
+
 
     function setTransactionFee(uint _fee) external onlyOwner {
         transactionFee = _fee;
