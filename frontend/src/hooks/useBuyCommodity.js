@@ -1,16 +1,22 @@
 import { useWriteContract } from 'wagmi';
 import TradeBridge from '../abi/TradeBridge.json';
-import { CONTRACT_ADDRESS } from '../abi/address';
+import { contractAddress } from '../abi/address';
 
 export function useBuyCommodity() {
   const { writeContract, isPending, isSuccess, error } = useWriteContract();
 
-  const buyCommodity = (commodityId, quantity) => {
+  const buyCommodity = (
+    commodityId,
+    quantity
+  ) => {
     writeContract({
-      address: CONTRACT_ADDRESS,
+      address: contractAddress,
       abi: TradeBridge,
       functionName: 'buyCommodity',
-      args: [BigInt(commodityId), BigInt(quantity)],
+      args: [
+        BigInt(commodityId), 
+        BigInt(quantity),  
+      ]
     });
   };
 
