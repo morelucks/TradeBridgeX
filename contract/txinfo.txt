@@ -6,7 +6,7 @@ URL: https://sepolia.basescan.org/address/0x293cb5ce5a0fd7859b9be757fec354fe0065
 
 //=== token ===//
 Deployer: 0x2252d89e6966d4ffd7d4EB80394bfCD3a4660e23
-Contract Address: 0xf8BB15B31E9eC0c0222F69170Ca8e77a85c55e10
+Contract Address:   
 
 
 

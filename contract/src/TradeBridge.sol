@@ -255,6 +255,29 @@ contract TradeBridge {
         );
     }
 
+
+function getPurchasedCommoditiesByUser(address user) external view returns (Sale[] memory) {
+    uint count = 0;
+
+    for (uint i = 0; i < sales.length; i++) {
+        if (sales[i].buyer == user) {
+            count++;
+        }
+    }
+
+    Sale[] memory result = new Sale[](count);
+    uint index = 0;
+    for (uint i = 0; i < sales.length; i++) {
+        if (sales[i].buyer == user) {
+            result[index] = sales[i];
+            index++;
+        }
+    }
+
+    return result;
+}
+
+
     function setTransactionFee(uint _fee) external onlyOwner {
         transactionFee = _fee;
     }
