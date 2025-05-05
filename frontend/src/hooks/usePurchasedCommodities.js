@@ -79,6 +79,7 @@ export function usePurchasedCommoditiesByUser(userAddress) {
   }, [salesData, salesLoading, salesError, userAddress]);
 
   return {
+    salesData,
     purchases,
     isLoading,
     error,

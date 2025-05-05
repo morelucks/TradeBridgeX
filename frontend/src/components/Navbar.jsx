@@ -17,11 +17,17 @@ const Navbar = ({ onOpenAuth }) => {
   }, []);
 
   return (
-    <header className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? "bg-white shadow-lg backdrop-blur-md bg-opacity-90" : "bg-transparent"}`}>
+    <header
+      className={`fixed w-full z-50 transition-all duration-300 ${
+        isScrolled
+          ? "bg-white shadow-lg backdrop-blur-md bg-opacity-90"
+          : "bg-transparent"
+      }`}
+    >
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-20">
           <Link to="/" className="flex items-center">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
@@ -34,59 +40,76 @@ const Navbar = ({ onOpenAuth }) => {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-6">
-            <Link to="/about" className="relative group text-gray-700 hover:text-amber-500 font-medium transition-colors">
+            <Link
+              to="/about"
+              className="relative group text-gray-700 hover:text-amber-500 font-medium transition-colors"
+            >
               About
               <span className="absolute left-0 bottom-0 w-0 h-0.5 bg-amber-500 transition-all duration-300 group-hover:w-full"></span>
             </Link>
-            <Link to="/buyer-dashboard" className="relative group text-gray-700 hover:text-amber-500 font-medium transition-colors">
+            <Link
+              to="/buyer-dashboard"
+              className="relative group text-gray-700 hover:text-amber-500 font-medium transition-colors"
+            >
               Markets
               <span className="absolute left-0 bottom-0 w-0 h-0.5 bg-amber-500 transition-all duration-300 group-hover:w-full"></span>
             </Link>
-            <Link to="/news" className="relative group text-gray-700 hover:text-amber-500 font-medium transition-colors">
+            <Link
+              to="/news"
+              className="relative group text-gray-700 hover:text-amber-500 font-medium transition-colors"
+            >
               News
               <span className="absolute left-0 bottom-0 w-0 h-0.5 bg-amber-500 transition-all duration-300 group-hover:w-full"></span>
             </Link>
-            <Link to="/contact" className="relative group text-gray-700 hover:text-amber-500 font-medium transition-colors">
+            <Link
+              to="/contact"
+              className="relative group text-gray-700 hover:text-amber-500 font-medium transition-colors"
+            >
               Contact
               <span className="absolute left-0 bottom-0 w-0 h-0.5 bg-amber-500 transition-all duration-300 group-hover:w-full"></span>
             </Link>
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-3 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all shadow-lg ml-5">
-            <ConnectButton.Custom>
-              {({ account, openAccountModal, openConnectModal, mounted }) => {
-                const connected = mounted && account;
+              <div className="bg-gradient-to-r from-emerald-400 to-amber-400 text-white px-8 py-3 rounded-lg hover:from-emerald-500  hover:to-amber-500 transition-all shadow-lg ml-5">
+                <ConnectButton.Custom>
+                  {({
+                    account,
+                    openAccountModal,
+                    openConnectModal,
+                    mounted,
+                  }) => {
+                    const connected = mounted && account;
 
-                return (
-                  <div>
-                    {connected ? (
-                      <button
-                        onClick={openAccountModal}
-                        className="flex items-center"
-                      >
-                        <span className="text-white font-medium">
-                          {account.displayName}
-                        </span>
-                      </button>
-                    ) : (
-                      <button
-                        onClick={openConnectModal}
-                        className="flex items-center"
-                      >
-                        <span className="text-white font-medium">
-                          Connect Wallet
-                        </span>
-                      </button>
-                    )}
-                  </div>
-                );
-              }}
-            </ConnectButton.Custom>
-          </div>
+                    return (
+                      <div>
+                        {connected ? (
+                          <button
+                            onClick={openAccountModal}
+                            className="flex items-center"
+                          >
+                            <span className="text-white font-medium">
+                              {account.displayName}
+                            </span>
+                          </button>
+                        ) : (
+                          <button
+                            onClick={openConnectModal}
+                            className="flex items-center"
+                          >
+                            <span className="text-white font-medium">
+                              Connect Wallet
+                            </span>
+                          </button>
+                        )}
+                      </div>
+                    );
+                  }}
+                </ConnectButton.Custom>
+              </div>
             </motion.div>
           </nav>
 
           {/* Mobile Menu Button */}
-          <motion.button 
+          <motion.button
             onClick={toggleSidebar}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
@@ -99,7 +122,7 @@ const Navbar = ({ onOpenAuth }) => {
 
       {/* Mobile Menu */}
       {isOpen && (
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, x: "100%" }}
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: "100%" }}
@@ -119,8 +142,8 @@ const Navbar = ({ onOpenAuth }) => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Link 
-                  to={`/${item.toLowerCase()}`} 
+                <Link
+                  to={`/${item.toLowerCase()}`}
                   className="text-xl text-gray-700 hover:text-amber-500 transition-colors"
                   onClick={toggleSidebar}
                 >
@@ -135,37 +158,42 @@ const Navbar = ({ onOpenAuth }) => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-             <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-3 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all shadow-lg ml-5">
-            <ConnectButton.Custom>
-              {({ account, openAccountModal, openConnectModal, mounted }) => {
-                const connected = mounted && account;
+              <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-3 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all shadow-lg ml-5">
+                <ConnectButton.Custom>
+                  {({
+                    account,
+                    openAccountModal,
+                    openConnectModal,
+                    mounted,
+                  }) => {
+                    const connected = mounted && account;
 
-                return (
-                  <div>
-                    {connected ? (
-                      <button
-                        onClick={openAccountModal}
-                        className="flex items-center"
-                      >
-                        <span className="text-white font-medium">
-                          {account.displayName}
-                        </span>
-                      </button>
-                    ) : (
-                      <button
-                        onClick={openConnectModal}
-                        className="flex items-center"
-                      >
-                        <span className="text-white font-medium">
-                          Connect Wallet
-                        </span>
-                      </button>
-                    )}
-                  </div>
-                );
-              }}
-            </ConnectButton.Custom>
-          </div>
+                    return (
+                      <div>
+                        {connected ? (
+                          <button
+                            onClick={openAccountModal}
+                            className="flex items-center"
+                          >
+                            <span className="text-white font-medium">
+                              {account.displayName}
+                            </span>
+                          </button>
+                        ) : (
+                          <button
+                            onClick={openConnectModal}
+                            className="flex items-center"
+                          >
+                            <span className="text-white font-medium">
+                              Connect Wallet
+                            </span>
+                          </button>
+                        )}
+                      </div>
+                    );
+                  }}
+                </ConnectButton.Custom>
+              </div>
             </motion.div>
           </nav>
         </motion.div>

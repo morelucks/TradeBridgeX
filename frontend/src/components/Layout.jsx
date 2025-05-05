@@ -46,12 +46,6 @@ const Layout = ({ children }) => {
                 >
                   Dashboard
                 </Link>
-                <Link 
-                  to="/markets" 
-                  className={`font-medium ${location.pathname === '/markets' ? 'text-amber-500' : 'text-gray-700 hover:text-amber-500'}`}
-                >
-                  Markets
-                </Link>
                 
               </nav>
 
