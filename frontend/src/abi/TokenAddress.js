@@ -1,1 +1,1 @@
-export const contractAddress="0xf8BB15B31E9eC0c0222F69170Ca8e77a85c55e10"
+export const TokenAddress="0xf8BB15B31E9eC0c0222F69170Ca8e77a85c55e10"

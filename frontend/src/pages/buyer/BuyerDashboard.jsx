@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import PurchaseModal from "../../../modals/PurchaseModal";
 import { formatEther } from "viem";
 import {
   FiSearch,
@@ -17,15 +18,14 @@ import { useCommoditiesByUser } from "../../hooks/getCommoditiesByUser";
 
 const BuyerDashboard = () => {
   const { address } = useAccount();
-  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("marketplace");
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCommodity, setSelectedCommodity] = React.useState(null);
 
   const { commodities } = useAllCommodities();
   const { purchases } = useCommoditiesByUser(address);
 
-  console.log(commodities);
-  console.log(purchases);
+
 
   const disputes = [
     {
@@ -37,8 +37,8 @@ const BuyerDashboard = () => {
     },
   ];
 
-  const handlePurchase = (commodityId) => {
-    navigate(`/buyer-dashboard/purchase-commodity/${commodityId}`);
+  const handlePurchase = (commodity) => {
+    setSelectedCommodity(commodity);
   };
 
   const filteredCommodities = commodities.filter((commodity) =>
@@ -71,6 +71,7 @@ const BuyerDashboard = () => {
           >
             Marketplace
           </button>
+
           <button
             onClick={() => setActiveTab("purchases")}
             className={`px-6 py-3 font-medium whitespace-nowrap ${
@@ -81,6 +82,7 @@ const BuyerDashboard = () => {
           >
             My Purchases
           </button>
+
           <button
             onClick={() => setActiveTab("disputes")}
             className={`px-6 py-3 font-medium whitespace-nowrap ${
@@ -148,12 +150,13 @@ const BuyerDashboard = () => {
 
                     <div className="flex space-x-2">
                       <button
-                        onClick={() => handlePurchase(commodity.id)}
+                        onClick={() => handlePurchase(commodity)}
                         className="flex-1 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 flex items-center justify-center"
                       >
                         <FiShoppingCart className="mr-2" />
                         Purchase
                       </button>
+
                       <button className="p-2 bg-gray-100 rounded-lg hover:bg-gray-200">
                         <BsGraphUp className="text-gray-600" />
                       </button>
@@ -350,6 +353,13 @@ const BuyerDashboard = () => {
           </div>
         </div>
       </div>
+
+      {selectedCommodity && (
+        <PurchaseModal
+          commodity={selectedCommodity}
+          onClose={() => setSelectedCommodity(null)}
+        />
+      )}
     </div>
   );
 };
