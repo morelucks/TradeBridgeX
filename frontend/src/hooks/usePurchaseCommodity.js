@@ -1,130 +1,115 @@
 import { useState, useEffect } from 'react';
-import {
-  useWriteContract,
-  useWaitForTransactionReceipt
-} from 'wagmi';
+import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import TradeBridge from '../abi/TradeBridge.json';
 import Token from '../abi/Token.json';
 import { contractAddress } from '../abi/address';
 import { TokenAddress } from '../abi/TokenAddress';
 
 export function usePurchaseCommodity() {
+  // State for tracking overall process
+  const [error, setError] = useState(null);
   const [isPending, setIsPending] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [error, setError] = useState(null);
-  const [approvalHash, setApprovalHash] = useState(null);
-  const [purchaseHash, setPurchaseHash] = useState(null);
-  const [pendingCommodity, setPendingCommodity] = useState(null);
-  
-  const { writeContractAsync } = useWriteContract();
-  
-  // Watch approval transaction
+
+  // Approval transaction
   const {
-    isLoading: isApprovalLoading,
-    isSuccess: isApprovalSuccess,
+    writeContract: writeApproval,
+    data: approvalHash,
+    isPending: isApprovalPending,
     isError: isApprovalError,
-    error: approvalError
-  } = useWaitForTransactionReceipt({
-    hash: approvalHash,
-  });
-  
-  // Watch purchase transaction
+    error: approvalError,
+  } = useWriteContract();
+
+  // Purchase transaction
   const {
-    isLoading: isPurchaseLoading,
-    isSuccess: isPurchaseSuccess,
+    writeContract: writePurchase,
+    data: purchaseHash,
+    isPending: isPurchasePending,
     isError: isPurchaseError,
-    error: purchaseError
-  } = useWaitForTransactionReceipt({
-    hash: purchaseHash,
-  });
+    error: purchaseError,
+  } = useWriteContract();
+
+ 
+  const { isSuccess: isApprovalSuccess, isLoading: isApprovalLoading } =
+    useWaitForTransactionReceipt({
+      hash: approvalHash,
+    });
+
   
-  // Update pending state
+  const { isSuccess: isPurchaseSuccess, isLoading: isPurchaseLoading } =
+    useWaitForTransactionReceipt({
+      hash: purchaseHash,
+    });
+
   useEffect(() => {
-    setIsPending(isApprovalLoading || isPurchaseLoading);
-  }, [isApprovalLoading, isPurchaseLoading]);
-  
-  // Handle errors
+    setIsPending(isApprovalPending || isApprovalLoading || isPurchasePending || isPurchaseLoading);
+  }, [isApprovalPending, isApprovalLoading, isPurchasePending, isPurchaseLoading]);
+
+
   useEffect(() => {
     if (isApprovalError) {
       setError(approvalError);
       setIsPending(false);
-      setPendingCommodity(null);
     }
     if (isPurchaseError) {
       setError(purchaseError);
       setIsPending(false);
     }
   }, [isApprovalError, isPurchaseError, approvalError, purchaseError]);
-  
+
   // Handle purchase success
   useEffect(() => {
     if (isPurchaseSuccess) {
       setIsSuccess(true);
       setIsPending(false);
-      setPendingCommodity(null);
     }
   }, [isPurchaseSuccess]);
-  
-  // Automatically execute purchase after approval succeeds
+
   useEffect(() => {
-    const executePurchase = async () => {
-      if (isApprovalSuccess && pendingCommodity) {
-        try {
-          const { commodityId, quantity } = pendingCommodity;
-          
-          const hash = await writeContractAsync({
-            address: contractAddress,
-            abi: TradeBridge,
-            functionName: 'buyCommodity',
-            args: [BigInt(commodityId), BigInt(quantity)],
-          });
-          
-          setPurchaseHash(hash);
-        } catch (err) {
-          setError(err);
-          setIsPending(false);
-          setPendingCommodity(null);
-        }
-      }
-    };
     
-    executePurchase();
-  }, [isApprovalSuccess, pendingCommodity, writeContractAsync]);
+    if (isApprovalSuccess && approvalHash && window.__pendingPurchase) {
+      const { commodityId, quantity } = window.__pendingPurchase;
+      console.log(commodityId, quantity)
+      writePurchase({
+        address: contractAddress,
+        abi: TradeBridge,
+        functionName: 'buyCommodity',
+        args: [BigInt(commodityId), BigInt(quantity)],
+      });
+      delete window.__pendingPurchase; 
+    }
+  }, [isApprovalSuccess, approvalHash, writePurchase]);
+
   
   const purchaseCommodity = async (commodityId, quantity, totalPrice) => {
     try {
-      // Reset states
       setError(null);
       setIsSuccess(false);
       setIsPending(true);
-      setApprovalHash(null);
-      setPurchaseHash(null);
-      
-      // Store commodity info for purchase step
-      setPendingCommodity({ commodityId, quantity });
-      
+
+     
+      window.__pendingPurchase = { commodityId, quantity };
+
       // Initiate approval
-      const hash = await writeContractAsync({
+      writeApproval({
         address: TokenAddress,
         abi: Token,
         functionName: 'approve',
         args: [contractAddress, BigInt(totalPrice)],
       });
-      
-      setApprovalHash(hash);
     } catch (err) {
       setError(err);
       setIsPending(false);
-      setPendingCommodity(null);
+      delete window.__pendingPurchase;
     }
   };
-  
+
   return {
-    purchaseCommodity,  
+    purchaseCommodity,
     isPending,
     isSuccess,
     error,
     approvalHash,
-    purchaseHash
+    purchaseHash,
   };
 }

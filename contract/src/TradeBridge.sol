@@ -7,8 +7,17 @@ import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
 
 interface TradeBridgeTokenC {
     function balanceOf(address account) external view returns (uint256);
-    function transfer(address recipient, uint256 amount) external returns (bool);
-    function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
+
+    function transfer(
+        address recipient,
+        uint256 amount
+    ) external returns (bool);
+
+    function transferFrom(
+        address sender,
+        address recipient,
+        uint256 amount
+    ) external returns (bool);
 }
 
 contract TradeBridge {
@@ -16,7 +25,7 @@ contract TradeBridge {
     uint public transactionCount;
     uint public nextCommodityId;
     address public owner;
-    address  public tokenAddress;
+    address public tokenAddress;
     struct Commodity {
         uint commodityId;
         address sellerAddress;
@@ -52,16 +61,40 @@ contract TradeBridge {
 
     IERC20 public ITBTK;
 
-
     mapping(address => uint[]) public userCommodities;
     mapping(address => mapping(uint => bool)) public userCommoditiesInvolved;
     mapping(uint => Dispute) public disputes;
     mapping(address => Sale) allSales;
 
-    event CommodityPurchased(address indexed buyer, uint commodityId, uint quantity, uint amount);
-    event CommodityAdded(address indexed seller, uint commodityId, string commodityTitle, string commodityDescription, uint commodityQuantity, string quantityMeasurement, string image, string imageURL, uint createdAt, string commodityLocation);
-    event DisputeRaised(address indexed defaulter, address indexed reporter, uint commodityId, string report);
-    event DisputeResolved(address indexed defaulter, address indexed reporter, uint commodityId);
+    event CommodityPurchased(
+        address indexed buyer,
+        uint commodityId,
+        uint quantity,
+        uint amount
+    );
+    event CommodityAdded(
+        address indexed seller,
+        uint commodityId,
+        string commodityTitle,
+        string commodityDescription,
+        uint commodityQuantity,
+        string quantityMeasurement,
+        string image,
+        string imageURL,
+        uint createdAt,
+        string commodityLocation
+    );
+    event DisputeRaised(
+        address indexed defaulter,
+        address indexed reporter,
+        uint commodityId,
+        string report
+    );
+    event DisputeResolved(
+        address indexed defaulter,
+        address indexed reporter,
+        uint commodityId
+    );
 
     constructor(address _tokenAddress) {
         tokenAddress = _tokenAddress;
@@ -84,7 +117,6 @@ contract TradeBridge {
         string memory _imageURL,
         string memory _commodityLocation
     ) public {
-
         Commodity memory newCommodity = Commodity({
             commodityId: nextCommodityId,
             sellerAddress: msg.sender,
@@ -100,12 +132,22 @@ contract TradeBridge {
             hasReceived: false,
             isAvailable: true
         });
-        
-        
+
         allCommodities.push(newCommodity);
         userCommodities[msg.sender].push(nextCommodityId);
-        
-        emit CommodityAdded(msg.sender, nextCommodityId, _commodityTitle, _commodityDescription, _commodityQuantity, _quantityMeasurement, _image, _imageURL, block.timestamp, _commodityLocation);
+
+        emit CommodityAdded(
+            msg.sender,
+            nextCommodityId,
+            _commodityTitle,
+            _commodityDescription,
+            _commodityQuantity,
+            _quantityMeasurement,
+            _image,
+            _imageURL,
+            block.timestamp,
+            _commodityLocation
+        );
 
         nextCommodityId++;
     }
@@ -114,9 +156,13 @@ contract TradeBridge {
         return allCommodities;
     }
 
-    function getCommoditiesByUser(address user) external view returns (Commodity[] memory) {
+    function getCommoditiesByUser(
+        address user
+    ) external view returns (Commodity[] memory) {
         uint[] memory userCommodityIds = userCommodities[user];
-        Commodity[] memory userCommoditiesArray = new Commodity[](userCommodityIds.length);
+        Commodity[] memory userCommoditiesArray = new Commodity[](
+            userCommodityIds.length
+        );
 
         for (uint i = 0; i < userCommodityIds.length; i++) {
             userCommoditiesArray[i] = allCommodities[userCommodityIds[i] - 1];
@@ -157,53 +203,90 @@ contract TradeBridge {
     // }
 
     function buyCommodity(uint _commodityId, uint _quantity) external {
-    require(_commodityId > 0 && _commodityId < nextCommodityId, "Error: Commodity does not exist");
-    Commodity storage commodity = allCommodities[_commodityId - 1];
-    require(commodity.commodityQuantity >= _quantity, "Error: Commodity quantity is lower than your quantity");
-    require(_quantity > 0, "Error: Quantity cannot be zero");
+        require(
+            _commodityId > 0 && _commodityId < nextCommodityId,
+            "Error: Commodity does not exist"
+        );
+        Commodity storage commodity = allCommodities[_commodityId - 1];
+        require(
+            commodity.commodityQuantity >= _quantity,
+            "Error: Commodity quantity is lower than your quantity"
+        );
+        require(_quantity > 0, "Error: Quantity cannot be zero");
 
-    uint totalAmount = (commodity.pricePerQuantity * _quantity) + transactionFee;
-    require(IERC20(tokenAddress).balanceOf(msg.sender) >= totalAmount, "Error: Insufficient balance");
+        uint totalAmount = (commodity.pricePerQuantity * _quantity) +
+            transactionFee;
+        require(
+            IERC20(tokenAddress).balanceOf(msg.sender) >= totalAmount,
+            "Error: Insufficient balance"
+        );
 
-    require(IERC20(tokenAddress).transferFrom(msg.sender, commodity.sellerAddress, totalAmount), "Error: Transfer failed");
+        require(
+            IERC20(tokenAddress).transferFrom(
+                msg.sender,
+                commodity.sellerAddress,
+                totalAmount
+            ),
+            "Error: Transfer failed"
+        );
 
-    commodity.commodityQuantity -= _quantity;
+        commodity.commodityQuantity -= _quantity;
 
-    sales.push(Sale({
-        buyer: msg.sender,
-        seller: commodity.sellerAddress,
-        commodityId: _commodityId,
-        quantity: _quantity
-    }));
+        sales.push(
+            Sale({
+                buyer: msg.sender,
+                seller: commodity.sellerAddress,
+                commodityId: _commodityId,
+                quantity: _quantity
+            })
+        );
 
-    userCommoditiesInvolved[msg.sender][_commodityId] = true;
+        userCommoditiesInvolved[msg.sender][_commodityId] = true;
 
-    if (commodity.commodityQuantity == 0) {
-        commodity.isAvailable = false;
+        if (commodity.commodityQuantity == 0) {
+            commodity.isAvailable = false;
+        }
+
+        emit CommodityPurchased(
+            msg.sender,
+            _commodityId,
+            _quantity,
+            totalAmount
+        );
     }
-
-    emit CommodityPurchased(msg.sender, _commodityId, _quantity, totalAmount);
-}
-
 
     function setTransactionFee(uint _fee) external onlyOwner {
         transactionFee = _fee;
     }
 
-    function buyerRaiseDispute(address _defaulter, uint _commodityId, string memory _report) external {
-        require(userCommoditiesInvolved[msg.sender][_commodityId], "Error: You cannot raise a dispute for this commodity");
+    function buyerRaiseDispute(
+        address _defaulter,
+        uint _commodityId,
+        string memory _report
+    ) external {
+        require(
+            userCommoditiesInvolved[msg.sender][_commodityId],
+            "Error: You cannot raise a dispute for this commodity"
+        );
 
         bool isSeller = false;
 
         for (uint i = 0; i < sales.length; i++) {
-            if (sales[i].commodityId == _commodityId && sales[i].seller == _defaulter && sales[i].buyer == msg.sender) {
+            if (
+                sales[i].commodityId == _commodityId &&
+                sales[i].seller == _defaulter &&
+                sales[i].buyer == msg.sender
+            ) {
                 isSeller = true;
                 break;
             }
         }
 
-        require(isSeller, "Error: The defaulter is not the seller of this commodity");
-        
+        require(
+            isSeller,
+            "Error: The defaulter is not the seller of this commodity"
+        );
+
         disputes[_commodityId] = Dispute({
             buyer: msg.sender,
             seller: _defaulter,
@@ -215,11 +298,17 @@ contract TradeBridge {
     }
 
     function resolveDispute(uint _commodityId) external onlyOwner {
-        require(disputes[_commodityId].buyer != address(0), "Error: No dispute found.");
-        require(!disputes[_commodityId].isResolved, "Error: This dispute has been resolved");
+        require(
+            disputes[_commodityId].buyer != address(0),
+            "Error: No dispute found."
+        );
+        require(
+            !disputes[_commodityId].isResolved,
+            "Error: This dispute has been resolved"
+        );
 
         // Commodity storage commodity = allCommodities[_commodityId - 1];
-        
+
         Sale memory sale;
         bool saleFound = false;
         for (uint i = 0; i < sales.length; i++) {
@@ -229,7 +318,7 @@ contract TradeBridge {
                 break;
             }
         }
-        
+
         require(saleFound, "Error: Sale not found");
 
         // uint totalAmount = commodity.pricePerQuantity * sale.quantity;
@@ -238,6 +327,10 @@ contract TradeBridge {
 
         disputes[_commodityId].isResolved = true;
 
-        emit DisputeResolved(disputes[_commodityId].seller, disputes[_commodityId].buyer, _commodityId);
+        emit DisputeResolved(
+            disputes[_commodityId].seller,
+            disputes[_commodityId].buyer,
+            _commodityId
+        );
     }
 }

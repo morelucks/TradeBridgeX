@@ -7,12 +7,6 @@ import { TokenAddress } from '../abi/TokenAddress';
 
 export function useApproveToken() {
   const { writeContract, isPending, isSuccess, error } = useWriteContract();
-  const { data: tokenAddress } = useReadContract({
-    address: contractAddress,
-    abi: TradeBridge,
-    functionName: 'tokenAddress',
-  });
-
   const approveToken = (amount) => {
     writeContract({
       address: TokenAddress,
