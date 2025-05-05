@@ -15,6 +15,7 @@ import { BsArrowUpRight, BsGraphUp } from "react-icons/bs";
 import { useAccount } from "wagmi";
 import { useAllCommodities } from "../../hooks/useGetAllCommodities";
 import { useCommoditiesByUser } from "../../hooks/getCommoditiesByUser";
+import { usePurchasedCommoditiesByUser } from "../../hooks/usePurchasedCommodities";
 
 const BuyerDashboard = () => {
   const { address } = useAccount();
@@ -23,9 +24,10 @@ const BuyerDashboard = () => {
   const [selectedCommodity, setSelectedCommodity] = React.useState(null);
 
   const { commodities } = useAllCommodities();
-  const { purchases } = useCommoditiesByUser(address);
 
+  const { purchases, isLoading, error } = usePurchasedCommoditiesByUser(address);
 
+   console.log(purchases)
 
   const disputes = [
     {
