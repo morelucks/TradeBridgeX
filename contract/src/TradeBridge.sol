@@ -56,6 +56,15 @@ contract TradeBridge {
         bool isResolved;
     }
 
+
+ struct PurchasedCommodity {
+        string commodityTitle;
+        uint pricePerQuantity;
+        uint quantity;
+        uint totalPrice;
+        uint date;
+    }
+
     Commodity[] public allCommodities;
     Sale[] public sales;
 
@@ -255,27 +264,30 @@ contract TradeBridge {
         );
     }
 
-
-function getPurchasedCommoditiesByUser(address user) external view returns (Sale[] memory) {
-    uint count = 0;
-
-    for (uint i = 0; i < sales.length; i++) {
-        if (sales[i].buyer == user) {
-            count++;
+function getPurchasedDetailByUser(address user) external view returns (PurchasedCommodity[] memory) {
+        uint count;
+        for (uint i = 0; i < sales.length; i++) {
+            if (sales[i].buyer == user) count++;
         }
-    }
+        PurchasedCommodity[] memory detailed = new PurchasedCommodity[](count);
+        uint idx;
+        for (uint i = 0; i < sales.length; i++) {
+            if (sales[i].buyer == user) {
+                Sale memory sale = sales[i];
+                Commodity memory commodity = allCommodities[sale.commodityId - 1];
 
-    Sale[] memory result = new Sale[](count);
-    uint index = 0;
-    for (uint i = 0; i < sales.length; i++) {
-        if (sales[i].buyer == user) {
-            result[index] = sales[i];
-            index++;
+                detailed[idx] = PurchasedCommodity({
+                    commodityTitle: commodity.commodityTitle,
+                    pricePerQuantity: commodity.pricePerQuantity,
+                    quantity: sale.quantity,
+                    totalPrice: commodity.pricePerQuantity * sale.quantity,
+                    date: commodity.createdAt
+                });
+                idx++;
+            }
         }
+        return detailed;
     }
-
-    return result;
-}
 
 
     function setTransactionFee(uint _fee) external onlyOwner {
