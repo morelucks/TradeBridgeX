@@ -1,8 +1,14 @@
 import React, { useState } from 'react';
+import { useCommoditiesByUser } from '../../hooks/getCommoditiesByUser';
+import { formatEther } from 'viem';
 import { Link } from 'react-router-dom';
+import { useAccount } from 'wagmi';
 import { FiEdit, FiTrash2, FiEye, FiPackage, FiDollarSign, FiTrendingUp } from 'react-icons/fi';
 
 const MyCommodities = () => {
+   const { address } = useAccount();
+  const{purchases}=useCommoditiesByUser(address)
+  
   const [commodities, setCommodities] = useState([
     {
       id: 1,
@@ -66,63 +72,39 @@ const MyCommodities = () => {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Orders</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rating</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+             
+              
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {commodities.map((commodity) => (
-              <tr key={commodity.id}>
+            {purchases.map((commodity) => (
+              <tr key={commodity.commodityId
+              }>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="font-medium">{commodity.name}</div>
+                  <div className="font-medium">{commodity.commodityTitle}</div>
                   <div className="text-sm text-gray-500 capitalize">{commodity.category}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
                     <FiDollarSign className="text-gray-400 mr-1" />
-                    <span>{commodity.price.toFixed(2)}</span>
+                    <span>{formatEther(commodity.pricePerQuantity)}</span>
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  {commodity.quantity} units
+                  {Number(commodity.commodityQuantity)} units
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span className={`px-2 py-1 text-xs rounded-full ${
-                    commodity.status === 'active' ? 'bg-green-100 text-green-800' :
+                    commodity.isAvailable  ? 'bg-green-100 text-green-800' :
                     commodity.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
                     'bg-red-100 text-red-800'
                   }`}>
-                    {commodity.status}
+                    instock
                   </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  {commodity.orders} orders
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  {commodity.rating ? (
-                    <div className="flex items-center">
-                      <FiTrendingUp className="text-amber-500 mr-1" />
-                      {commodity.rating.toFixed(1)}
-                    </div>
-                  ) : '-'}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <div className="flex space-x-2">
-                    <button className="text-emerald-600 hover:text-emerald-800">
-                      <FiEye />
-                    </button>
-                    <button className="text-blue-600 hover:text-blue-800">
-                      <FiEdit />
-                    </button>
-                    <button 
-                      onClick={() => handleDelete(commodity.id)}
-                      className="text-red-600 hover:text-red-800"
-                    >
-                      <FiTrash2 />
-                    </button>
-                  </div>
-                </td>
+               
+               
+               
               </tr>
             ))}
           </tbody>

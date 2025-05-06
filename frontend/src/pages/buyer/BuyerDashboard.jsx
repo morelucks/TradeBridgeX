@@ -25,8 +25,13 @@ const BuyerDashboard = () => {
   const { commodities } = useAllCommodities();
 
   const { purchases,salesData, isLoading, error } = usePurchasedCommoditiesByUser(address);
-  console.log(salesData)
-
+    console.log(salesData)
+  const totalPrice = commodities?.reduce((acc, commodity) => {
+    console.log(commodity)
+    return acc + BigInt(commodity.pricePerQuantity);
+  }, 0n); 
+  
+  console.log(`Total Price: ${totalPrice.toString()}`);
    
 
   const disputes = [
@@ -187,7 +192,7 @@ const BuyerDashboard = () => {
                     Seller
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Price
+                    quantity
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Date
@@ -199,14 +204,14 @@ const BuyerDashboard = () => {
                   <tr key={purchase.commodityId}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="font-medium text-gray-900">
-                        {purchase.commodity}
+                        {purchase.buyer}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-gray-500">
                       {purchase.seller}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-gray-500">
-                      ${purchase.price.toFixed(2)}
+                      2
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-gray-500">
                       {purchase.quantity}
@@ -297,7 +302,7 @@ const BuyerDashboard = () => {
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500">Total Spent</p>
-                <p className="text-2xl font-bold">$2,450.75</p>
+                <p className="text-2xl font-bold">{formatEther(totalPrice)}</p>
               </div>
             </div>
           </div>
@@ -310,7 +315,7 @@ const BuyerDashboard = () => {
                 <p className="text-sm font-medium text-gray-500">
                   Active Purchases
                 </p>
-                <p className="text-2xl font-bold">{salesData.length}</p>
+                <p className="text-2xl font-bold">{salesData?.length}</p>
               </div>
             </div>
           </div>
