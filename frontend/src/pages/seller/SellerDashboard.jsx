@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
+import { useAccount } from 'wagmi';
+import { useCommoditiesByUser } from '../../hooks/getCommoditiesByUser';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { FiPackage, FiDollarSign, FiActivity, FiMessageSquare, FiPlusCircle } from 'react-icons/fi';
 
 const SellerDashboard = () => {
   const location = useLocation();
+     const { address } = useAccount();
+    const{purchases}=useCommoditiesByUser(address)
   const [activeTab, setActiveTab] = useState('commodities');
 
   return (

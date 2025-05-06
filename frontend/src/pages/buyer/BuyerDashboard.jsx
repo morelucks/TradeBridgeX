@@ -14,7 +14,6 @@ import {
 import { BsArrowUpRight, BsGraphUp } from "react-icons/bs";
 import { useAccount } from "wagmi";
 import { useAllCommodities } from "../../hooks/useGetAllCommodities";
-import { useCommoditiesByUser } from "../../hooks/getCommoditiesByUser";
 import { usePurchasedCommoditiesByUser } from "../../hooks/usePurchasedCommodities";
 
 const BuyerDashboard = () => {
@@ -25,9 +24,15 @@ const BuyerDashboard = () => {
 
   const { commodities } = useAllCommodities();
 
-  const { purchases, isLoading, error } = usePurchasedCommoditiesByUser(address);
-
-   console.log(purchases)
+  const { purchases,salesData, isLoading, error } = usePurchasedCommoditiesByUser(address);
+    console.log(salesData)
+  const totalPrice = commodities?.reduce((acc, commodity) => {
+    console.log(commodity)
+    return acc + BigInt(commodity.pricePerQuantity);
+  }, 0n); 
+  
+  console.log(`Total Price: ${totalPrice.toString()}`);
+   
 
   const disputes = [
     {
@@ -187,57 +192,31 @@ const BuyerDashboard = () => {
                     Seller
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Price
+                    quantity
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Date
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {purchases.map((purchase) => (
-                  <tr key={purchase.id}>
+                {salesData.map((purchase) => (
+                  <tr key={purchase.commodityId}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="font-medium text-gray-900">
-                        {purchase.commodity}
+                        {purchase.buyer}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-gray-500">
                       {purchase.seller}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-gray-500">
-                      ${purchase.price.toFixed(2)}
+                      2
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-gray-500">
-                      {purchase.date}
+                      {purchase.quantity}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`px-2 py-1 text-xs rounded-full ${
-                          purchase.status === "Delivered"
-                            ? "bg-green-100 text-green-800"
-                            : purchase.status === "In Transit"
-                            ? "bg-blue-100 text-blue-800"
-                            : "bg-yellow-100 text-yellow-800"
-                        }`}
-                      >
-                        {purchase.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <Link
-                        to={`/buyer-dashboard/view-purchase/${purchase.id}`}
-                        className="text-emerald-600 hover:text-emerald-800"
-                      >
-                        View Details
-                      </Link>
-                    </td>
+                   
                   </tr>
                 ))}
               </tbody>
@@ -323,7 +302,7 @@ const BuyerDashboard = () => {
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500">Total Spent</p>
-                <p className="text-2xl font-bold">$2,450.75</p>
+                <p className="text-2xl font-bold">{formatEther(totalPrice)}</p>
               </div>
             </div>
           </div>
@@ -336,20 +315,7 @@ const BuyerDashboard = () => {
                 <p className="text-sm font-medium text-gray-500">
                   Active Purchases
                 </p>
-                <p className="text-2xl font-bold">3</p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <div className="flex items-center">
-              <div className="p-3 rounded-full bg-purple-100 text-purple-600">
-                <FiShield className="h-6 w-6" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">
-                  Open Disputes
-                </p>
-                <p className="text-2xl font-bold">{disputes.length}</p>
+                <p className="text-2xl font-bold">{salesData?.length}</p>
               </div>
             </div>
           </div>
