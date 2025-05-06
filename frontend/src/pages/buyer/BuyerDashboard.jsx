@@ -144,7 +144,7 @@ const BuyerDashboard = () => {
                       <div>
                         <p className="text-sm text-gray-500">Price per unit</p>
                         <p className="text-xl font-bold text-emerald-600">
-                          ${formatEther(commodity.pricePerQuantity)}
+                          ${formatEther(commodity.pricePerQuantity)/0.000000000000000001}
                         </p>
                       </div>
                       <div>
