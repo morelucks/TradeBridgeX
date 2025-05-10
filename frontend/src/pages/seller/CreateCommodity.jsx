@@ -2,11 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiUpload, FiImage, FiDollarSign, FiPackage, FiCheck, FiMapPin } from 'react-icons/fi';
 import { useAddCommodity } from '../../hooks/useAddCommodity';
-
+import axios from 'axios';
 
 const CreateCommodity = () => {
   const navigate = useNavigate();
-  const { addCommodity, isPending, isSuccess, error } = useAddCommodity();
+  const { addCommodity, isPending, isSuccess, error, uploadStatus } = useAddCommodity();
+  
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [previewURL, setPreviewURL] = useState('');
 
   const [formData, setFormData] = useState({
     name: '',
@@ -39,6 +42,20 @@ const CreateCommodity = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedFile(file);
+      
+      // Create a preview URL for the image
+      const objectURL = URL.createObjectURL(file);
+      setPreviewURL(objectURL);
+      
+      // Clear the imageURL field since we're using a file upload
+      setFormData(prev => ({ ...prev, imageURL: '' }));
+    }
+  };
+
   const handleDeliveryOption = (option) => {
     setFormData(prev => ({
       ...prev,
@@ -48,10 +65,9 @@ const CreateCommodity = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validate numeric fields
     if (isNaN(Number(formData.price)) || isNaN(Number(formData.quantity))) {
       alert('Please enter valid numbers for price and quantity');
       return;
@@ -59,14 +75,14 @@ const CreateCommodity = () => {
 
     const fullDescription = `${formData.description}\nCategory: ${formData.category}\nCertification: ${formData.certification}\nDelivery Options: ${formData.deliveryOptions.join(', ')}`;
 
-    addCommodity(
+    await addCommodity(
       formData.name,
       fullDescription,
       formData.quantity,
       formData.quantityMeasurement,
       formData.price,
-      '', 
-      formData.imageURL || 'https://example.com/placeholder.jpg',
+      selectedFile, 
+      formData.imageURL || 'https://example.com/placeholder.jpg', 
       formData.location || 'Unknown'
     );
   };
@@ -202,26 +218,72 @@ const CreateCommodity = () => {
           />
         </div>
 
-        {/* Image URL */}
+        {/* Image Upload */}
         <div className="mb-6">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Commodity Image URL
+            Commodity Image
           </label>
-          <div className="flex items-center px-4 py-2 border border-gray-300 rounded-lg">
-            <FiImage className="mr-2 text-gray-400" />
-            <input
-              type="url"
-              name="imageURL"
-              value={formData.imageURL}
-              onChange={handleChange}
-              placeholder="https://example.com/image.jpg"
-              className="w-full focus:outline-none"
-              pattern="https?://.+"
-            />
+          <div className="border border-gray-300 rounded-lg p-4">
+            {/* File Input */}
+            <div className="flex items-center justify-center w-full">
+              <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
+                <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                  <FiUpload className="w-8 h-8 mb-3 text-gray-400" />
+                  <p className="mb-2 text-sm text-gray-500"><span className="font-semibold">Click to upload</span> or drag and drop</p>
+                  <p className="text-xs text-gray-500">PNG, JPG (MAX. 5MB)</p>
+                </div>
+                <input 
+                  type="file" 
+                  className="hidden" 
+                  accept="image/*"
+                  onChange={handleFileChange}
+                />
+              </label>
+            </div>
+            
+            {/* Preview Image */}
+            {previewURL && (
+              <div className="mt-4">
+                <p className="text-sm font-medium text-gray-700 mb-1">Preview:</p>
+                <div className="relative w-full h-40 bg-gray-100 rounded-lg overflow-hidden">
+                  <img 
+                    src={previewURL} 
+                    alt="Preview" 
+                    className="object-contain w-full h-full" 
+                  />
+                </div>
+              </div>
+            )}
+            
+            {/* OR Divider */}
+            <div className="flex items-center my-4">
+              <div className="flex-grow h-px bg-gray-300"></div>
+              <span className="px-3 text-gray-500 text-sm">OR</span>
+              <div className="flex-grow h-px bg-gray-300"></div>
+            </div>
+            
+            {/* Image URL Input */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Image URL
+              </label>
+              <div className="flex items-center px-4 py-2 border border-gray-300 rounded-lg">
+                <FiImage className="mr-2 text-gray-400" />
+                <input
+                  type="url"
+                  name="imageURL"
+                  value={formData.imageURL}
+                  onChange={handleChange}
+                  placeholder="https://example.com/image.jpg"
+                  className="w-full focus:outline-none"
+                  disabled={!!selectedFile}
+                />
+              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                {selectedFile ? "URL input disabled when file is selected" : "Provide a URL to the commodity image"}
+              </p>
+            </div>
           </div>
-          <p className="text-xs text-gray-500 mt-1">
-            Provide a URL to the commodity image (e.g., from IPFS or a hosting service)
-          </p>
         </div>
 
         {/* Certification */}
@@ -285,6 +347,12 @@ const CreateCommodity = () => {
         </div>
 
         {/* Status Messages */}
+        {uploadStatus && (
+          <div className="mt-4 p-3 bg-blue-50 text-blue-600 rounded-lg">
+            {uploadStatus}
+          </div>
+        )}
+        
         {error && (
           <div className="mt-4 p-3 bg-red-50 text-red-600 rounded-lg">
             Error: {error.message || 'Failed to list commodity'}

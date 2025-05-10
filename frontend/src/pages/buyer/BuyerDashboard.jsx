@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import PurchaseModal from "../../../modals/PurchaseModal";
 import { formatEther } from "viem";
 import {
@@ -7,11 +7,12 @@ import {
   FiShoppingCart,
   FiDollarSign,
   FiPackage,
-  FiShield,
   FiClock,
   FiCheckCircle,
+  FiMapPin,
+  FiImage,
 } from "react-icons/fi";
-import { BsArrowUpRight, BsGraphUp } from "react-icons/bs";
+import { BsGraphUp } from "react-icons/bs";
 import { useAccount } from "wagmi";
 import { useAllCommodities } from "../../hooks/useGetAllCommodities";
 import { usePurchasedCommoditiesByUser } from "../../hooks/usePurchasedCommodities";
@@ -22,17 +23,12 @@ const BuyerDashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCommodity, setSelectedCommodity] = React.useState(null);
 
-  const { commodities } = useAllCommodities();
-
-  const { purchases,salesData, isLoading, error } = usePurchasedCommoditiesByUser(address);
-    console.log(salesData)
-  const totalPrice = commodities?.reduce((acc, commodity) => {
-    console.log(commodity)
-    return acc + BigInt(commodity.pricePerQuantity);
-  }, 0n); 
+  const { commodities, isLoading: commoditiesLoading } = useAllCommodities();
+  const { purchases, salesData, isLoading: purchasesLoading, error } = usePurchasedCommoditiesByUser(address);
   
-  console.log(`Total Price: ${totalPrice.toString()}`);
-   
+  const totalPrice = commodities?.reduce((acc, commodity) => {
+    return acc + BigInt(commodity.pricePerQuantity);
+  }, 0n);
 
   const disputes = [
     {
@@ -52,185 +48,256 @@ const BuyerDashboard = () => {
     commodity.commodityTitle.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Dashboard Header */}
-      <div className="bg-white shadow-sm">
-        <div className="container mx-auto px-4 py-4">
-          <h1 className="text-2xl font-bold text-gray-800">Buyer Dashboard</h1>
-          <p className="text-gray-600">
-            Welcome back! Explore commodities and manage your purchases
+ 
+  const getCommodityImage = (commodity) => {
+    
+    if (commodity.imageURL && commodity.imageURL.includes('pinata') && !commodity.imageURL.includes('placeholder')) {
+      return commodity.imageURL; 
+    }
+    
+   
+    if (commodity.imageURL && commodity.imageURL.startsWith('http') && !commodity.imageURL.includes('example.com')) {
+      return commodity.imageURL;
+    }
+    
+   
+    return 'https://via.placeholder.com/300x200?text=Commodity';
+  };
+
+  // Render commodity card function
+  const renderCommodityCard = (commodity) => {
+    const imageUrl = getCommodityImage(commodity);
+    
+    return (
+      <div 
+        key={commodity.commodityId.toString()} 
+        className="bg-white rounded-xl shadow-sm overflow-hidden transition-all hover:shadow-md"
+      >
+        <div className="relative h-48 bg-gray-100">
+          {/* Image with error handling */}
+          <img 
+            src={imageUrl}
+            alt={commodity.commodityTitle}
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              e.target.onerror = null; // Prevent infinite error loop
+              e.target.src = 'https://via.placeholder.com/300x200?text=No+Image';
+            }}
+          />
+          
+          {/* Price badge */}
+          <div className="absolute top-3 right-3 bg-white px-3 py-1 rounded-full shadow-sm flex items-center">
+            <FiDollarSign className="text-emerald-600 mr-1" />
+            <span className="font-medium">{formatEther(commodity.pricePerQuantity)} ETH</span>
+          </div>
+          
+          {/* Location badge */}
+          <div className="absolute bottom-3 left-3 bg-white/80 px-2 py-1 rounded-lg text-xs flex items-center">
+            <FiMapPin className="text-gray-600 mr-1" />
+            <span>{commodity.commodityLocation || 'Unknown location'}</span>
+          </div>
+        </div>
+        
+        <div className="p-4">
+          <h3 className="font-semibold text-lg truncate">{commodity.commodityTitle}</h3>
+          
+          <div className="flex items-center mt-2 text-sm text-gray-600">
+            <FiPackage className="mr-1" />
+            <span>
+              {commodity.commodityQuantity.toString()} {commodity.quantityMeasurement} available
+            </span>
+          </div>
+          
+          <p className="mt-2 text-sm text-gray-600 line-clamp-2">
+            {commodity.commodityDescription.split('\n')[0]}
           </p>
+          
+          <div className="mt-4 flex justify-between items-center">
+            <button
+              onClick={() => handlePurchase(commodity)}
+              className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 flex items-center text-sm"
+            >
+              <FiShoppingCart className="mr-2" />
+              Purchase
+            </button>
+            
+            <Link
+              to={`/marketplace/${commodity.commodityId.toString()}`}
+              className="text-emerald-600 hover:text-emerald-800 text-sm font-medium"
+            >
+              View Details
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="container mx-auto px-4 py-6">
+      {/* Dashboard Header */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+        <h1 className="text-2xl font-bold text-gray-800 mb-4 md:mb-0">Buyer Dashboard</h1>
+        
+        <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 w-full md:w-auto">
+          {/* Search Bar */}
+          <div className="relative w-full md:w-64">
+            <input
+              type="text"
+              placeholder="Search commodities..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-full focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+            />
+            <FiSearch className="absolute left-3 top-3 text-gray-400" />
+          </div>
+          
+          {/* Filter/Sort Options can be added here */}
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="container mx-auto px-4 py-8">
-        {/* Navigation Tabs */}
-        <div className="flex overflow-x-auto mb-6">
+      {/* Tabs */}
+      <div className="border-b border-gray-200 mb-6">
+        <div className="flex space-x-4">
           <button
             onClick={() => setActiveTab("marketplace")}
-            className={`px-6 py-3 font-medium whitespace-nowrap ${
+            className={`py-3 px-1 border-b-2 ${
               activeTab === "marketplace"
-                ? "text-emerald-600 border-b-2 border-emerald-600"
-                : "text-gray-500"
+                ? "border-emerald-500 text-emerald-600 font-medium"
+                : "border-transparent text-gray-500 hover:text-gray-700"
             }`}
           >
             Marketplace
           </button>
-
           <button
             onClick={() => setActiveTab("purchases")}
-            className={`px-6 py-3 font-medium whitespace-nowrap ${
+            className={`py-3 px-1 border-b-2 ${
               activeTab === "purchases"
-                ? "text-emerald-600 border-b-2 border-emerald-600"
-                : "text-gray-500"
+                ? "border-emerald-500 text-emerald-600 font-medium"
+                : "border-transparent text-gray-500 hover:text-gray-700"
             }`}
           >
             My Purchases
           </button>
-
           <button
             onClick={() => setActiveTab("disputes")}
-            className={`px-6 py-3 font-medium whitespace-nowrap ${
+            className={`py-3 px-1 border-b-2 ${
               activeTab === "disputes"
-                ? "text-emerald-600 border-b-2 border-emerald-600"
-                : "text-gray-500"
+                ? "border-emerald-500 text-emerald-600 font-medium"
+                : "border-transparent text-gray-500 hover:text-gray-700"
             }`}
           >
             Disputes
           </button>
         </div>
+      </div>
 
-        {/* Marketplace Tab */}
-        {activeTab === "marketplace" && (
-          <div>
-            <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
-              <div className="relative">
-                <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search commodities..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                />
-              </div>
+      {/* Tab Content */}
+      {activeTab === "marketplace" && (
+        <div>
+          {commoditiesLoading ? (
+            <div className="flex justify-center items-center p-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emerald-500"></div>
             </div>
+          ) : filteredCommodities.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {filteredCommodities.map(renderCommodityCard)}
+            </div>
+          ) : (
+            <div className="text-center p-12 bg-gray-50 rounded-lg">
+              <FiPackage className="mx-auto h-12 w-12 text-gray-400" />
+              <h3 className="mt-2 text-lg font-medium text-gray-900">No commodities found</h3>
+              <p className="mt-1 text-gray-500">
+                There are no commodities matching your search criteria.
+              </p>
+            </div>
+          )}
+        </div>
+      )}
 
+      {activeTab === "purchases" && (
+        <div>
+          {purchasesLoading ? (
+            <div className="flex justify-center items-center p-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emerald-500"></div>
+            </div>
+          ) : purchases.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredCommodities.map((commodity) => (
+              {purchases.map((purchase) => (
                 <div
-                  key={commodity.id}
-                  className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow"
+                  key={purchase.id}
+                  className="bg-white rounded-xl shadow-sm overflow-hidden"
                 >
-                  <div className="p-4">
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="text-lg font-bold text-gray-800">
-                        {commodity.commodityTitle}
-                      </h3>
-                      <span className="bg-emerald-100 text-emerald-800 text-xs px-2 py-1 rounded-full">
-                        {commodity.rating} ★
+                  <div className="p-6">
+                    <h3 className="font-semibold text-lg">
+                      {purchase.commodityTitle}
+                    </h3>
+                    
+                    <div className="flex items-center mt-2 text-sm text-gray-600">
+                      <FiDollarSign className="mr-1" />
+                      <span>{formatEther(purchase.totalPrice)} ETH</span>
+                    </div>
+                    
+                    <div className="flex items-center mt-2 text-sm text-gray-600">
+                      <FiPackage className="mr-1" />
+                      <span>
+                        {purchase.quantity} {purchase.quantityMeasurement}
                       </span>
                     </div>
-                    {/* <p className="text-gray-600 mb-1">
-                      Seller: {commodity.seller}
-                    </p> */}
-                    <p className="text-gray-600 mb-3">
-                      Location: {commodity.commodityLocation}
-                    </p>
-
-                    <div className="flex justify-between items-center mb-4">
-                      <div>
-                        <p className="text-sm text-gray-500">Price per unit</p>
-                        <p className="text-xl font-bold text-emerald-600">
-                          ${formatEther(commodity.pricePerQuantity)/0.000000000000000001}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-500">Available</p>
-                        <p className="text-lg font-medium">
-                          {commodity.commodityQuantity.toLocaleString()} units
-                        </p>
-                      </div>
+                    <div className="flex items-center mt-2 text-sm text-gray-600">
+                      <FiClock className="mr-1" />
+                      <span>
+                        {new Date(Number(purchase.timestamp) * 1000).toLocaleDateString()}
+                      </span>
                     </div>
-
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => handlePurchase(commodity)}
-                        className="flex-1 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 flex items-center justify-center"
+                    
+                    <div className="mt-4 flex items-center">
+                      <div
+                        className={`px-3 py-1 rounded-full text-xs font-medium ${
+                          purchase.completed
+                            ? "bg-green-100 text-green-800"
+                            : "bg-yellow-100 text-yellow-800"
+                        }`}
                       >
-                        <FiShoppingCart className="mr-2" />
-                        Purchase
-                      </button>
+                        {purchase.completed ? "Completed" : "In Progress"}
 
-                      <button className="p-2 bg-gray-100 rounded-lg hover:bg-gray-200">
-                        <BsGraphUp className="text-gray-600" />
-                      </button>
+                      </div>
                     </div>
-                  </div>
-                  <div className="bg-gray-50 px-4 py-2 text-sm text-gray-500 flex items-center">
-                    <FiClock className="mr-1" />
-                    <span>Delivery in {commodity.deliveryTime}</span>
+                    
+                    <div className="mt-4">
+                      <Link
+                        to={`/purchase/${purchase.id}`}
+                        className="text-emerald-600 hover:text-emerald-800 text-sm font-medium"
+                      >
+                        View Details
+                      </Link>
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
-          </div>
-        )}
+          ) : (
+            <div className="text-center p-12 bg-gray-50 rounded-lg">
+              <FiShoppingCart className="mx-auto h-12 w-12 text-gray-400" />
+              <h3 className="mt-2 text-lg font-medium text-gray-900">No purchases yet</h3>
+              <p className="mt-1 text-gray-500">
+                You haven't made any purchases yet. Browse the marketplace to get started!
+              </p>
+            </div>
+          )}
+        </div>
+      )}
 
-        {/* Purchases Tab */}
-        {activeTab === "purchases" && (
-          <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Commodity
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Seller
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    quantity
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Date
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {salesData.map((purchase) => (
-                  <tr key={purchase.commodityId}>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="font-medium text-gray-900">
-                        {purchase.buyer}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-gray-500">
-                      {purchase.seller}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-gray-500">
-                      2
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-gray-500">
-                      {purchase.quantity}
-                    </td>
-                   
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {/* Disputes Tab */}
-        {activeTab === "disputes" && (
-          <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-            {disputes.length > 0 ? (
-              <table className="w-full">
+      {activeTab === "disputes" && (
+        <div>
+          {disputes.length > 0 ? (
+            <div className="bg-white shadow-sm rounded-lg overflow-hidden">
+              <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      ID
+                    </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Commodity
                     </th>
@@ -238,94 +305,67 @@ const BuyerDashboard = () => {
                       Seller
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Date
+                      Status
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
+                      Date
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Actions
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
+                <tbody className="bg-white divide-y divide-gray-200">
                   {disputes.map((dispute) => (
                     <tr key={dispute.id}>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="font-medium text-gray-900">
-                          {dispute.commodity}
-                        </div>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        #{dispute.id}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-gray-500">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {dispute.commodity}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {dispute.seller}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-gray-500">
-                        {dispute.date}
-                      </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full">
+                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
                           {dispute.status}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {dispute.date}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <Link
-                          to={`/buyer-dashboard/dispute-sale/${dispute.id}`}
-                          className="text-emerald-600 hover:text-emerald-800"
+                          to={`/dispute/${dispute.id}`}
+                          className="text-emerald-600 hover:text-emerald-900"
                         >
-                          View Details
+                          Details
                         </Link>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
-            ) : (
-              <div className="p-8 text-center">
-                <FiCheckCircle className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-2 text-lg font-medium text-gray-900">
-                  No active disputes
-                </h3>
-                <p className="mt-1 text-gray-500">
-                  All your purchases have been successfully processed.
-                </p>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Stats Cards */}
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <div className="flex items-center">
-              <div className="p-3 rounded-full bg-emerald-100 text-emerald-600">
-                <FiDollarSign className="h-6 w-6" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Total Spent</p>
-                <p className="text-2xl font-bold">{formatEther(totalPrice)}</p>
-              </div>
             </div>
-          </div>
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <div className="flex items-center">
-              <div className="p-3 rounded-full bg-blue-100 text-blue-600">
-                <FiPackage className="h-6 w-6" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">
-                  Active Purchases
-                </p>
-                <p className="text-2xl font-bold">{salesData?.length}</p>
-              </div>
+          ) : (
+            <div className="text-center p-12 bg-gray-50 rounded-lg">
+              <FiCheckCircle className="mx-auto h-12 w-12 text-gray-400" />
+              <h3 className="mt-2 text-lg font-medium text-gray-900">No disputes</h3>
+              <p className="mt-1 text-gray-500">
+                You don't have any active disputes.
+              </p>
             </div>
-          </div>
+          )}
         </div>
-      </div>
+      )}
 
+      {/* Purchase Modal */}
       {selectedCommodity && (
         <PurchaseModal
-          commodity={selectedCommodity}
+          isOpen={!!selectedCommodity}
           onClose={() => setSelectedCommodity(null)}
+          commodity={selectedCommodity}
         />
       )}
     </div>

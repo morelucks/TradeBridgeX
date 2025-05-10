@@ -14,7 +14,7 @@ const PurchaseCommodity = () => {
   const [commodity, setCommodity] = useState(null);
   
   useEffect(() => {
-    // In a real app, you would fetch this data from your API
+    
     const mockCommodities = {
       1: { id: 1, name: 'Premium Wheat', seller: 'FarmCo', price: 645.75, location: 'Kansas, USA', rating: 4.8, minOrder: 100, totalAvailable: 5000 },
       2: { id: 2, name: 'Arabica Coffee', seller: 'BeanGrowers', price: 1.85, location: 'Colombia', rating: 4.6, minOrder: 50, totalAvailable: 2000 },
