@@ -87,7 +87,7 @@ const MyCommodities = () => {
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
                     <FiDollarSign className="text-gray-400 mr-1" />
-                    <span>{formatEther(commodity.pricePerQuantity)}</span>
+                    <span>{formatEther(commodity.pricePerQuantity)/0.000000000000000001}</span>
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">

@@ -244,7 +244,6 @@ const BuyerDashboard = () => {
                         {purchase.quantity} {purchase.quantityMeasurement}
                       </span>
                     </div>
-                    
                     <div className="flex items-center mt-2 text-sm text-gray-600">
                       <FiClock className="mr-1" />
                       <span>
@@ -261,6 +260,7 @@ const BuyerDashboard = () => {
                         }`}
                       >
                         {purchase.completed ? "Completed" : "In Progress"}
+
                       </div>
                     </div>
                     
