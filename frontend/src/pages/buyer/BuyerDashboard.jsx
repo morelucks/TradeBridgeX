@@ -261,29 +261,24 @@ const BuyerDashboard = () => {
                       </h3>
                       
                     </div>
-                  </div>
 
-                  {/* Card Body */}
-                  <div className="p-4 space-y-4">
-                    {/* Quantity */}
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-600">Quantity:</span>
-                      <span>{purchase.quantity.toString()}</span>
+                    <div className="flex items-center mt-2 text-sm text-gray-600">
+                      <FiClock className="mr-1" />
+                      <span>
+                        {new Date(Number(purchase.timestamp) * 1000).toLocaleDateString()}
+                      </span>
                     </div>
+                    
+                    <div className="mt-4 flex items-center">
+                      <div
+                        className={`px-3 py-1 rounded-full text-xs font-medium ${
+                          purchase.completed
+                            ? "bg-green-100 text-green-800"
+                            : "bg-yellow-100 text-yellow-800"
+                        }`}
+                      >
+                        {purchase.completed ? "Completed" : "In Progress"}
 
-                    {/* Parties */}
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-600">Seller:</span>
-                        <span className="font-mono bg-gray-100 px-2 py-1 rounded text-sm">
-                          {truncateAddress(purchase.seller)}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-600">Buyer:</span>
-                        <span className="font-mono bg-gray-100 px-2 py-1 rounded text-sm">
-                          {truncateAddress(purchase.buyer)}
-                        </span>
                       </div>
                     </div>
 

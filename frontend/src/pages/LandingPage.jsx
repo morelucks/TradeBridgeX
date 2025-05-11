@@ -182,21 +182,21 @@ const LandingPage = () => {
                 className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 mb-12"
               >
                 <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-                  <Link
+                  {/* <Link
                     to="/trade"
                     className="inline-flex items-center justify-center bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-8 py-3 rounded-lg font-bold text-lg transition-all duration-300 shadow-lg hover:shadow-xl shadow-emerald-500/30"
                   >
                     Start Trading <AiOutlineArrowRight className="ml-2" />
-                  </Link>
+                  </Link> */}
                 </motion.div>
                 
                 <div className="flex space-x-4">
                   <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
                     <button
                       onClick={() => setShowAuthModal(true)}
-                      className="inline-flex items-center justify-center bg-gray-800 hover:bg-gray-700 text-white border border-gray-700 px-6 py-3 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg"
+                      className="inline-flex items-center justify-center  bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white border border-gray-700 px-6 py-3 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg"
                     >
-                      <AiOutlineShoppingCart className="mr-2 text-amber-400" /> Login
+                      <AiOutlineShoppingCart className="mr-2 text-amber-400" /> Get Started
                     </button>
                   </motion.div>
                   {/* <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
