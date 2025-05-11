@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { usePurchaseCommodity } from "../src/hooks/usePurchaseCommodity";
+// import { usePurchaseCommodity } from "../src/hooks/usePurchaseCommodity";
+import { usePurchaseCommodity } from "../hooks/usePurchaseCommodity";
 import { formatEther } from "viem";
 import { FiX, FiShoppingCart, FiCheck, FiLoader } from "react-icons/fi";
 

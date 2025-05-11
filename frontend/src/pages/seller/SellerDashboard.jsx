@@ -48,6 +48,14 @@ const SellerDashboard = () => {
             <FiMessageSquare className="mr-3" />
             Disputes
           </Link>
+
+          <Link
+            to="/seller-dashboard/marketplace"
+            className={`flex items-center p-3 rounded-lg ${location.pathname.includes('marketplace') ? 'bg-emerald-50 text-emerald-600' : 'hover:bg-gray-100'}`}
+          >
+            <FiMessageSquare className="mr-3" />
+           Market place
+          </Link>
         </nav>
       </div>
 

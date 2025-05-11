@@ -4,6 +4,7 @@ import { getDefaultConfig, RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { baseSepolia } from 'wagmi/chains';
 import '@rainbow-me/rainbowkit/styles.css';
+import SellerMarketPlace from './pages/seller/MarketPlace';
 
 import Layout from './components/Layout';
 import LandingPage from './pages/LandingPage';
@@ -63,6 +64,7 @@ function App() {
                   <Route path="my-commodities" element={<MyCommodities />} />
                   <Route path="create-commodity" element={<CreateCommodity />} />
                   <Route path="disputes" element={<Disputes />} />
+                  <Route path="marketplace" element={<SellerMarketPlace/>} />
                   <Route path="disputes/:id" element={<DisputeDetail />} />
                 </Route>
               </Route>

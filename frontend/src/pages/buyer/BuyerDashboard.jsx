@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import PurchaseModal from "../../../modals/PurchaseModal";
+import PurchaseModal from "../../modals/PurchaseModal";
 import Image1 from "../../../public/famer.jpeg";
 import { formatEther } from "viem";
 import {
@@ -11,7 +11,7 @@ import {
   FiClock,
   FiCheckCircle,
   FiMapPin,
-  FiImage,
+  FiUser
 } from "react-icons/fi";
 import { BsGraphUp } from "react-icons/bs";
 import { useAccount } from "wagmi";
@@ -243,69 +243,108 @@ const BuyerDashboard = () => {
 
       {activeTab === "purchases" && (
         <div>
-          {purchasesLoading ? (
-            <div className="flex justify-center items-center p-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emerald-500"></div>
-            </div>
-          ) : salesData.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {salesData.map((purchase) => (
-                <div 
-                key={purchase.commodityId}
-                className="w-full max-w-md bg-white rounded-lg shadow-md overflow-hidden">
-                  {/* Card Header with commodity ID */}
-                  <div className="bg-emerald-500 p-4 text-white">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-xl font-semibold">
+        {purchasesLoading ? (
+          <div className="flex justify-center items-center p-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+          </div>
+        ) : salesData.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {salesData.map((purchase) => (
+              <div
+                key={purchase.commodityId.toString()}
+                className="w-full max-w-md bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 hover:shadow-xl transition-shadow duration-300"
+              >
+                {/* Card Header with commodity ID */}
+                <div className="border-b border-gray-100 p-5 bg-emerald-500">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <div className="p-2 bg-blue-50 rounded-lg">
+                        <FiPackage className="text-blue-600" size={18} />
+                      </div>
+                      <h3 className="text-lg font-semibold text-white">
                         Commodity #{purchase.commodityId.toString()}
                       </h3>
-                      
                     </div>
-
-                    <div className="flex items-center mt-2 text-sm text-gray-600">
-                      <FiClock className="mr-1" />
-                      <span>
-                        {new Date(Number(purchase.timestamp) * 1000).toLocaleDateString()}
-                      </span>
-                    </div>
-                    
-                    <div className="mt-4 flex items-center">
-                      <div
-                        className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          purchase.completed
-                            ? "bg-green-100 text-green-800"
-                            : "bg-yellow-100 text-yellow-800"
-                        }`}
-                      >
-                        {purchase.completed ? "Completed" : "In Progress"}
-
-                      </div>
-                    </div>
-
-                    {/* Status - Using a placeholder since status wasn't provided */}
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-600">Status:</span>
-                      <span className="px-3 py-1 rounded-full text-sm bg-yellow-100 text-yellow-800">
-                        In Progress
-                      </span>
+                    <div className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-medium">
+                      {purchase.completed ? "In Progress" :   "Completed"}
                     </div>
                   </div>
                 </div>
-              ))}
+  
+                {/* Card Body with transaction details */}
+                <div className="p-5 space-y-4">
+                  {/* Quantity */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2 text-gray-600">
+                      <FiDollarSign size={16} />
+                      <span>Quantity</span>
+                    </div>
+                    <span className="font-medium text-gray-800">{purchase.quantity.toString()}</span>
+                  </div>
+  
+                  {/* Buyer */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2 text-gray-600">
+                      <FiUser size={16} />
+                      <span>Buyer</span>
+                    </div>
+                    <span className="font-medium text-gray-800 text-sm truncate max-w-[180px]" title={purchase.buyer}>
+                      {`${purchase.buyer.substring(0, 6)}...${purchase.buyer.substring(purchase.buyer.length - 4)}`}
+                    </span>
+                  </div>
+  
+                  {/* Seller */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2 text-gray-600">
+                      <FiUser size={16} />
+                      <span>Seller</span>
+                    </div>
+                    <span className="font-medium text-gray-800 text-sm truncate max-w-[180px]" title={purchase.seller}>
+                      {`${purchase.seller.substring(0, 6)}...${purchase.seller.substring(purchase.seller.length - 4)}`}
+                    </span>
+                  </div>
+  
+                  {/* Date - This is a placeholder since timestamp wasn't in your data */}
+                  {purchase.timestamp && (
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2 text-gray-600">
+                        <FiClock size={16} />
+                        <span>Date</span>
+                      </div>
+                      <span className="font-medium text-gray-800">
+                        {new Date(Number(purchase.timestamp) * 1000).toLocaleDateString()}
+                      </span>
+                    </div>
+                  )}
+                </div>
+  
+                {/* Card Footer */}
+                <div className="bg-gray-50 px-5 py-4 flex justify-between items-center">
+                  <span className="text-sm text-gray-500">Transaction ID</span>
+                  <span className="text-sm font-medium text-gray-700 truncate max-w-[150px]">
+                    {purchase.transactionId ? 
+                      `${purchase.transactionId.substring(0, 6)}...${purchase.transactionId.substring(purchase.transactionId.length - 4)}` : 
+                      `ID-${purchase.commodityId.toString()}`
+                    }
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center p-12 bg-gray-50 rounded-lg border border-gray-100">
+            <div className="mx-auto h-16 w-16 flex items-center justify-center rounded-full bg-gray-100">
+              <FiShoppingCart className="h-8 w-8 text-gray-400" />
             </div>
-          ) : (
-            <div className="text-center p-12 bg-gray-50 rounded-lg">
-              <FiShoppingCart className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-2 text-lg font-medium text-gray-900">
-                No purchases yet
-              </h3>
-              <p className="mt-1 text-gray-500">
-                You haven't made any purchases yet. Browse the marketplace to
-                get started!
-              </p>
-            </div>
-          )}
-        </div>
+            <h3 className="mt-4 text-lg font-medium text-gray-900">
+              No purchases yet
+            </h3>
+            <p className="mt-2 text-gray-500 max-w-md mx-auto">
+              You haven't made any purchases yet. Browse the marketplace to get started!
+            </p>
+          </div>
+        )}
+      </div>
       )}
 
       {activeTab === "disputes" && (
