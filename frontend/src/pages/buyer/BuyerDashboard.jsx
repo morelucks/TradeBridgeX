@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import PurchaseModal from "../../../modals/PurchaseModal";
+import Image1 from "../../../public/famer.jpeg";
 import { formatEther } from "viem";
 import {
   FiSearch,
@@ -24,8 +25,15 @@ const BuyerDashboard = () => {
   const [selectedCommodity, setSelectedCommodity] = React.useState(null);
 
   const { commodities, isLoading: commoditiesLoading } = useAllCommodities();
-  const { purchases, salesData, isLoading: purchasesLoading, error } = usePurchasedCommoditiesByUser(address);
-  
+  const {
+    purchases,
+    salesData,
+    isLoading: purchasesLoading,
+    error,
+  } = usePurchasedCommoditiesByUser(address);
+
+  console.log("Sales Data:", salesData);
+
   const totalPrice = commodities?.reduce((acc, commodity) => {
     return acc + BigInt(commodity.pricePerQuantity);
   }, 0n);
@@ -48,70 +56,84 @@ const BuyerDashboard = () => {
     commodity.commodityTitle.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
- 
   const getCommodityImage = (commodity) => {
-    
-    if (commodity.imageURL && commodity.imageURL.includes('pinata') && !commodity.imageURL.includes('placeholder')) {
-      return commodity.imageURL; 
-    }
-    
-   
-    if (commodity.imageURL && commodity.imageURL.startsWith('http') && !commodity.imageURL.includes('example.com')) {
+    if (
+      commodity.imageURL &&
+      commodity.imageURL.includes("pinata") &&
+      !commodity.imageURL.includes("placeholder")
+    ) {
       return commodity.imageURL;
     }
-    
-   
-    return 'https://via.placeholder.com/300x200?text=Commodity';
+
+    if (
+      commodity.imageURL &&
+      commodity.imageURL.startsWith("http") &&
+      !commodity.imageURL.includes("example.com")
+    ) {
+      return commodity.imageURL;
+    }
+
+    return Image1;
+  };
+
+   const truncateAddress = (address) => {
+    return `${address.slice(0, 6)}...${address.slice(-4)}`;
   };
 
   // Render commodity card function
   const renderCommodityCard = (commodity) => {
     const imageUrl = getCommodityImage(commodity);
-    
+
     return (
-      <div 
-        key={commodity.commodityId.toString()} 
+      <div
+        key={commodity.commodityId.toString()}
         className="bg-white rounded-xl shadow-sm overflow-hidden transition-all hover:shadow-md"
       >
         <div className="relative h-48 bg-gray-100">
           {/* Image with error handling */}
-          <img 
+          <img
             src={imageUrl}
             alt={commodity.commodityTitle}
             className="w-full h-full object-cover"
             onError={(e) => {
               e.target.onerror = null; // Prevent infinite error loop
-              e.target.src = 'https://via.placeholder.com/300x200?text=No+Image';
+              e.target.src =
+                "https://via.placeholder.com/300x200?text=No+Image";
             }}
           />
-          
+
           {/* Price badge */}
-          <div className="absolute top-3 right-3 bg-white px-3 py-1 rounded-full shadow-sm flex items-center">
+          {/* <div className="absolute top-3 right-3 bg-white px-3 py-1 rounded-full shadow-sm flex items-center">
             <FiDollarSign className="text-emerald-600 mr-1" />
-            <span className="font-medium">{formatEther(commodity.pricePerQuantity)} ETH</span>
-          </div>
-          
+            <span className="font-medium">
+              {formatEther(commodity.pricePerQuantity)} ETH
+            </span>
+          </div> */}
+
           {/* Location badge */}
-          <div className="absolute bottom-3 left-3 bg-white/80 px-2 py-1 rounded-lg text-xs flex items-center">
-            <FiMapPin className="text-gray-600 mr-1" />
-            <span>{commodity.commodityLocation || 'Unknown location'}</span>
+          <div className="absolute bottom-3 left-3 bg-white/80 px-2 py-1 rounded-lg text-xl flex items-center">
+            <FiMapPin className="text-gray-800 mr-1" />
+            <span>{commodity.commodityLocation || "Unknown location"}</span>
           </div>
         </div>
-        
+
         <div className="p-4">
-          <h3 className="font-semibold text-lg truncate">{commodity.commodityTitle}</h3>
-          
+          <h3 className="font-semibold text-lg truncate">
+            {commodity.commodityTitle}
+          </h3>
+
           <div className="flex items-center mt-2 text-sm text-gray-600">
             <FiPackage className="mr-1" />
             <span>
-              {commodity.commodityQuantity.toString()} {commodity.quantityMeasurement} available
+              {commodity.commodityQuantity.toString()}{" "}
+              {commodity.quantityMeasurement} available
             </span>
           </div>
-          
+
           <p className="mt-2 text-sm text-gray-600 line-clamp-2">
-            {commodity.commodityDescription.split('\n')[0]}
+            {commodity.commodityDescription.split("\n")[0]}
           </p>
-          
+
           <div className="mt-4 flex justify-between items-center">
             <button
               onClick={() => handlePurchase(commodity)}
@@ -120,13 +142,13 @@ const BuyerDashboard = () => {
               <FiShoppingCart className="mr-2" />
               Purchase
             </button>
-            
-            <Link
-              to={`/marketplace/${commodity.commodityId.toString()}`}
-              className="text-emerald-600 hover:text-emerald-800 text-sm font-medium"
-            >
-              View Details
-            </Link>
+
+            <div className=" top-3 right-3 bg-white px-3 py-1 rounded-full shadow-sm flex items-center">
+            <FiDollarSign className="text-emerald-600 mr-1" />
+            <span className="font-medium">
+              {formatEther(commodity.pricePerQuantity)} ETH
+            </span>
+          </div>
           </div>
         </div>
       </div>
@@ -137,8 +159,10 @@ const BuyerDashboard = () => {
     <div className="container mx-auto px-4 py-6">
       {/* Dashboard Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800 mb-4 md:mb-0">Buyer Dashboard</h1>
-        
+        <h1 className="text-2xl font-bold text-gray-800 mb-4 md:mb-0">
+          Buyer Dashboard
+        </h1>
+
         <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 w-full md:w-auto">
           {/* Search Bar */}
           <div className="relative w-full md:w-64">
@@ -151,7 +175,7 @@ const BuyerDashboard = () => {
             />
             <FiSearch className="absolute left-3 top-3 text-gray-400" />
           </div>
-          
+
           {/* Filter/Sort Options can be added here */}
         </div>
       </div>
@@ -206,7 +230,9 @@ const BuyerDashboard = () => {
           ) : (
             <div className="text-center p-12 bg-gray-50 rounded-lg">
               <FiPackage className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-2 text-lg font-medium text-gray-900">No commodities found</h3>
+              <h3 className="mt-2 text-lg font-medium text-gray-900">
+                No commodities found
+              </h3>
               <p className="mt-1 text-gray-500">
                 There are no commodities matching your search criteria.
               </p>
@@ -221,29 +247,21 @@ const BuyerDashboard = () => {
             <div className="flex justify-center items-center p-12">
               <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emerald-500"></div>
             </div>
-          ) : purchases.length > 0 ? (
+          ) : salesData.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {purchases.map((purchase) => (
-                <div
-                  key={purchase.id}
-                  className="bg-white rounded-xl shadow-sm overflow-hidden"
-                >
-                  <div className="p-6">
-                    <h3 className="font-semibold text-lg">
-                      {purchase.commodityTitle}
-                    </h3>
-                    
-                    <div className="flex items-center mt-2 text-sm text-gray-600">
-                      <FiDollarSign className="mr-1" />
-                      <span>{formatEther(purchase.totalPrice)} ETH</span>
+              {salesData.map((purchase) => (
+                <div 
+                key={purchase.commodityId}
+                className="w-full max-w-md bg-white rounded-lg shadow-md overflow-hidden">
+                  {/* Card Header with commodity ID */}
+                  <div className="bg-emerald-500 p-4 text-white">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-xl font-semibold">
+                        Commodity #{purchase.commodityId.toString()}
+                      </h3>
+                      
                     </div>
-                    
-                    <div className="flex items-center mt-2 text-sm text-gray-600">
-                      <FiPackage className="mr-1" />
-                      <span>
-                        {purchase.quantity} {purchase.quantityMeasurement}
-                      </span>
-                    </div>
+
                     <div className="flex items-center mt-2 text-sm text-gray-600">
                       <FiClock className="mr-1" />
                       <span>
@@ -263,14 +281,13 @@ const BuyerDashboard = () => {
 
                       </div>
                     </div>
-                    
-                    <div className="mt-4">
-                      <Link
-                        to={`/purchase/${purchase.id}`}
-                        className="text-emerald-600 hover:text-emerald-800 text-sm font-medium"
-                      >
-                        View Details
-                      </Link>
+
+                    {/* Status - Using a placeholder since status wasn't provided */}
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600">Status:</span>
+                      <span className="px-3 py-1 rounded-full text-sm bg-yellow-100 text-yellow-800">
+                        In Progress
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -279,9 +296,12 @@ const BuyerDashboard = () => {
           ) : (
             <div className="text-center p-12 bg-gray-50 rounded-lg">
               <FiShoppingCart className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-2 text-lg font-medium text-gray-900">No purchases yet</h3>
+              <h3 className="mt-2 text-lg font-medium text-gray-900">
+                No purchases yet
+              </h3>
               <p className="mt-1 text-gray-500">
-                You haven't made any purchases yet. Browse the marketplace to get started!
+                You haven't made any purchases yet. Browse the marketplace to
+                get started!
               </p>
             </div>
           )}
@@ -351,7 +371,9 @@ const BuyerDashboard = () => {
           ) : (
             <div className="text-center p-12 bg-gray-50 rounded-lg">
               <FiCheckCircle className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-2 text-lg font-medium text-gray-900">No disputes</h3>
+              <h3 className="mt-2 text-lg font-medium text-gray-900">
+                No disputes
+              </h3>
               <p className="mt-1 text-gray-500">
                 You don't have any active disputes.
               </p>
