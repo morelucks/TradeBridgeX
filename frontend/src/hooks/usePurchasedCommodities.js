@@ -1,9 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useReadContract } from 'wagmi';
 import TradeBridge from '../abi/TradeBridge.json';
-import Token from '../abi/Token.json';
 import { contractAddress } from '../abi/address';
-import { TokenAddress } from '../abi/TokenAddress';
 
 
 export function usePurchasedCommoditiesByUser(userAddress) {
@@ -77,6 +75,8 @@ export function usePurchasedCommoditiesByUser(userAddress) {
 
     fetchCommodityDetails();
   }, [salesData, salesLoading, salesError, userAddress]);
+
+  console.log("Purchases:", purchases); 
 
   return {
     salesData,
