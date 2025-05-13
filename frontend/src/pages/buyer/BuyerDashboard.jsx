@@ -146,7 +146,7 @@ const BuyerDashboard = () => {
             <div className=" top-3 right-3 bg-white px-3 py-1 rounded-full shadow-sm flex items-center">
             <FiDollarSign className="text-emerald-600 mr-1" />
             <span className="font-medium">
-              {formatEther(commodity.pricePerQuantity)} ETH
+              {formatEther(commodity.pricePerQuantity)/0.000000000000000001} USD
             </span>
           </div>
           </div>

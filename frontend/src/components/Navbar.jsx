@@ -33,8 +33,8 @@ const Navbar = ({ onOpenAuth }) => {
               transition={{ duration: 0.5 }}
               className="text-2xl font-bold"
             >
-              <span className="text-emerald-500">Comm</span>
-              <span className="text-amber-500">X</span>
+              <span className="text-emerald-500">Trade</span>
+              <span className="text-amber-500">Bridge</span>
             </motion.div>
           </Link>
 

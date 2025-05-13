@@ -27,8 +27,8 @@ const Layout = ({ children }) => {
             <div className="flex justify-between items-center h-20">
               <Link to="/" className="flex items-center">
                 <div className="text-2xl font-bold">
-                  <span className="text-emerald-600">Comm</span>
-                  <span className="text-amber-500">X</span>
+                  <span className="text-emerald-600">Trade</span>
+                  <span className="text-amber-500">Bridge</span>
                 </div>
               </Link>
 

@@ -1,0 +1,56 @@
+const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>, fileType: 'image' | 'cofo') => {
+    if (!e.target.files?.[0]) return;
+
+    setIsSubmitting(true);
+    const selectedFile = e.target.files[0];
+    
+    if (fileType === 'image') {
+      setFile(selectedFile);
+    } else {
+      setCoFoFile(selectedFile);
+    }
+
+    const data = new FormData();
+    data.append("name", fileType === 'image' ? "land-image" : "cofo-document");
+    data.append("file", selectedFile);
+
+    const config = {
+      method: "post",
+      maxBodyLength: Infinity,
+      url: "https://uploads.pinata.cloud/v3/files",
+      headers: {
+        Authorization: `Bearer ${import.meta.env.VITE_PINATA_JWT}`,
+      },
+      data: data,
+    };
+
+    try {
+      const response = await axios.request(config);
+      const cid = response.data.data.cid;
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64Data = reader.result?.toString().split(",")[1];
+        if (base64Data) {
+          if (fileType === 'image') {
+            setImage(response.data.data.id);
+            setImageCID(cid);
+            setFilePrev(base64Data);
+          } else {
+            setCoFoCID(cid);
+            setCoFoFilePrev(base64Data);
+          }
+        }
+        console.log("File uploaded with CID:", cid);
+      };
+      reader.readAsDataURL(selectedFile);
+
+      toast.success(`${fileType === 'image' ? 'Image' : 'Certificate of Occupancy'} uploaded successfully!`);
+      setSuccess(true);
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      toast.error("Failed to upload file.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
