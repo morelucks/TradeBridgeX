@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { useAppKit, useAppKitAccount } from "@reown/appkit/react";
 import { AiOutlineMenu, AiOutlineClose } from "react-icons/ai";
 import { motion } from "framer-motion";
 
 const Navbar = ({ onOpenAuth }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  
+  // AppKit hooks
+  const { open } = useAppKit();
+  const { address, isConnected } = useAppKitAccount();
 
   const toggleSidebar = () => setIsOpen(!isOpen);
 
@@ -69,42 +73,20 @@ const Navbar = ({ onOpenAuth }) => {
               <span className="absolute left-0 bottom-0 w-0 h-0.5 bg-amber-500 transition-all duration-300 group-hover:w-full"></span>
             </Link>
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <div className="bg-gradient-to-r from-emerald-400 to-amber-400 text-white px-8 py-3 rounded-lg hover:from-emerald-500  hover:to-amber-500 transition-all shadow-lg ml-5">
-                <ConnectButton.Custom>
-                  {({
-                    account,
-                    openAccountModal,
-                    openConnectModal,
-                    mounted,
-                  }) => {
-                    const connected = mounted && account;
-
-                    return (
-                      <div>
-                        {connected ? (
-                          <button
-                            onClick={openAccountModal}
-                            className="flex items-center"
-                          >
-                            <span className="text-white font-medium">
-                              {account.displayName}
-                            </span>
-                          </button>
-                        ) : (
-                          <button
-                            onClick={openConnectModal}
-                            className="flex items-center"
-                          >
-                            <span className="text-white font-medium">
-                              Connect Wallet
-                            </span>
-                          </button>
-                        )}
-                      </div>
-                    );
-                  }}
-                </ConnectButton.Custom>
-              </div>
+              <button 
+                onClick={() => open()}
+                className="bg-gradient-to-r from-emerald-400 to-amber-400 text-white px-8 py-3 rounded-lg hover:from-emerald-500 hover:to-amber-500 transition-all shadow-lg ml-5"
+              >
+                {isConnected ? (
+                  <span className="text-white font-medium">
+                    {address ? `${address.slice(0, 6)}...${address.slice(-4)}` : 'Connected'}
+                  </span>
+                ) : (
+                  <span className="text-white font-medium">
+                    Connect Wallet
+                  </span>
+                )}
+              </button>
             </motion.div>
           </nav>
 
@@ -158,42 +140,20 @@ const Navbar = ({ onOpenAuth }) => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-3 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all shadow-lg ml-5">
-                <ConnectButton.Custom>
-                  {({
-                    account,
-                    openAccountModal,
-                    openConnectModal,
-                    mounted,
-                  }) => {
-                    const connected = mounted && account;
-
-                    return (
-                      <div>
-                        {connected ? (
-                          <button
-                            onClick={openAccountModal}
-                            className="flex items-center"
-                          >
-                            <span className="text-white font-medium">
-                              {account.displayName}
-                            </span>
-                          </button>
-                        ) : (
-                          <button
-                            onClick={openConnectModal}
-                            className="flex items-center"
-                          >
-                            <span className="text-white font-medium">
-                              Connect Wallet
-                            </span>
-                          </button>
-                        )}
-                      </div>
-                    );
-                  }}
-                </ConnectButton.Custom>
-              </div>
+              <button 
+                onClick={() => open()}
+                className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-3 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all shadow-lg ml-5"
+              >
+                {isConnected ? (
+                  <span className="text-white font-medium">
+                    {address ? `${address.slice(0, 6)}...${address.slice(-4)}` : 'Connected'}
+                  </span>
+                ) : (
+                  <span className="text-white font-medium">
+                    Connect Wallet
+                  </span>
+                )}
+              </button>
             </motion.div>
           </nav>
         </motion.div>

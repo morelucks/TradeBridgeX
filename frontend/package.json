@@ -11,8 +11,9 @@
   },
   "dependencies": {
     "@pinata/sdk": "^2.1.0",
-    "@rainbow-me/rainbowkit": "^2.2.4",
-    "@tanstack/react-query": "^5.74.11",
+    "@reown/appkit": "^1.8.11",
+    "@reown/appkit-adapter-wagmi": "^1.8.11",
+    "@tanstack/react-query": "^5.90.5",
     "axios": "^1.9.0",
     "dotenv": "^16.5.0",
     "framer-motion": "^12.6.5",
@@ -24,8 +25,8 @@
     "react-spring": "^9.7.5",
     "three": "^0.175.0",
     "use-3d-effect": "^1.1.0",
-    "viem": "^2.28.1",
-    "wagmi": "^2.15.1"
+    "viem": "^2.38.4",
+    "wagmi": "^2.18.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
